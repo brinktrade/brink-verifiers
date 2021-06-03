@@ -1,5 +1,5 @@
 const { ethers } = require('hardhat')
-const { setupMetaAccount, getSigners, setupTokens } = require('@brinkninja/core/test/helpers')
+const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const { 
   BN, 
   BN18,
@@ -9,8 +9,6 @@ const {
   chaiSolidity
 } = require('@brinkninja/test-helpers')
 const { expect } = chaiSolidity()
-
-
 
 const EXECUTE_PARTIAL_SIGNED_DELEGATE_CALL_PARAM_TYPES = [
     { name: 'to', type: 'address' },
@@ -34,7 +32,7 @@ function getSignerFn (signerName) {
   }
 }
 
-describe("LimitSwapVerifier", function() {
+describe('LimitSwapVerifier', function() {
   beforeEach(async function () {
     const TestFulfillSwap = await ethers.getContractFactory('TestFulfillSwap')
     const LimitSwapVerifier = await ethers.getContractFactory('LimitSwapVerifier')
@@ -193,7 +191,7 @@ describe("LimitSwapVerifier", function() {
             this.notEnoughTokenCall.signedData
           ] },
           unsignedParamsFn: function () { return [this.notEnoughTokenCall.unsignedData] },
-          expectRevert: 'limitSwapVerifier: tokenToToken() tokenOut received is less than allowed'
+          expectRevert: 'LimitSwapVerifier: tokenToToken() tokenOut received is less than allowed'
         },
         {
           describe: 'when expiryBlock has been mined',
@@ -203,7 +201,7 @@ describe("LimitSwapVerifier", function() {
             this.expiredBlockCall.signedData
           ] },
           unsignedParamsFn: function () { return [this.expiredBlockCall.unsignedData] },
-          expectRevert: 'limitSwapVerifier: tokenToToken() expiryBlock exceeded'
+          expectRevert: 'LimitSwapVerifier: tokenToToken() expiryBlock exceeded'
         }
       ]
     })
