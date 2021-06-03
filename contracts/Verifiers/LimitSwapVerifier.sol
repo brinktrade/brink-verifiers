@@ -3,8 +3,8 @@ pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../Proxy/ProxyGettable.sol";
-import "../Called/CallExecutable.sol";
+import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
+import "@brinkninja/core/contracts/Called/CallExecutable.sol";
 
 /**
  * @dev Contains functions for ERC20 limit swaps.

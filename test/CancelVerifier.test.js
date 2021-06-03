@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 const { ethers } = require('hardhat')
-const testHelpers = require('@brinkninja/test-helpers');
 
 describe("CancelVerifier", function() {
   beforeEach(async function () {

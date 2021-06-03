@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "../Proxy/ProxyGettable.sol";
-import "../Proxy/ProxySettable.sol";
+import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
+import "@brinkninja/core/contracts/Proxy/ProxySettable.sol";
 
 /**
  * @dev Contains functions for admin control of Proxy accounts.

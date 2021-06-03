@@ -2,8 +2,8 @@
 pragma solidity ^0.7.0;
 
 import "@brinkninja/range-orders/contracts/interfaces/IRangeOrderPositionManager.sol";
-import "../Proxy/ProxyGettable.sol";
-import "../Called/CallExecutable.sol";
+import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
+import "@brinkninja/core/contracts/Called/CallExecutable.sol";
 import '../Libraries/TransferHelper.sol';
 
 /**
