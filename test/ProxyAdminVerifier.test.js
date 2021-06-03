@@ -33,7 +33,7 @@ describe("ProxyAdminVerifier", function() {
       .withArgs(someOtherAccount.address);
   }); 
 
-  it("addProxyOwner() tries to add same address twice, reverts with: 'ProxyAdminVerifier: addOwner with existing owner", async function() {
+  it("addProxyOwner() tries to add same address twice, reverts with: 'ProxyAdminVerifier: addOwner with existing owner'", async function() {
     const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
     const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
     await expect(proxyAdminVerifier.addProxyOwner(someOtherAccount.address))
@@ -43,11 +43,29 @@ describe("ProxyAdminVerifier", function() {
       .to.be.revertedWith('ProxyAdminVerifier: addOwner with existing owner')
   });
 
-  it("addProxyOwner() tries to add zero address, reverts with: 'ProxyAdminVerifier: addOwner with existing owner", async function() {
+  it("addProxyOwner() tries to add zero address, reverts with: 'ProxyAdminVerifier: addOwner with zero address'", async function() {
     const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
     const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
     await expect(proxyAdminVerifier.addProxyOwner(ZERO_ADDRESS))
       .to.be.revertedWith('ProxyAdminVerifier: addOwner with zero address')
-  }); 
+  });
+
+  it("removeProxyOwner() removes a proxy owner", async function() {
+    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
+    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
+    await expect(proxyAdminVerifier.addProxyOwner(someOtherAccount.address))
+      .to.emit(proxyAdminVerifier, 'OwnerAdded')
+      .withArgs(someOtherAccount.address);
+    await expect(proxyAdminVerifier.removeProxyOwner(someOtherAccount.address))
+      .to.emit(proxyAdminVerifier, 'OwnerRemoved')
+      .withArgs(someOtherAccount.address);
+  });
+
+  it("removeProxyOwner() tries to remove address that isn't an owner, reverts with: 'ProxyAdminVerifier: removeOwner with owner that does not exist'", async function() {
+    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
+    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
+    await expect(proxyAdminVerifier.removeProxyOwner(someOtherAccount.address))
+      .to.be.revertedWith('ProxyAdminVerifier: removeOwner with owner that does not exist')
+  });
 
 })
