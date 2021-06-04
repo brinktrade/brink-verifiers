@@ -38,7 +38,9 @@ const LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES = [
   { name: 'token', type: 'address' },
   { name: 'tokenAmount', type: 'uint256' },
   { name: 'ethAmount', type: 'uint256' },
-  { name: 'expiryBlock', type: 'uint256' }
+  { name: 'expiryBlock', type: 'uint256' },
+  { name: 'to', type: 'address' },
+  { name: 'data', type: 'bytes' },
 ]
 
 function getSignerFn (signerName) {
@@ -388,7 +390,7 @@ describe('LimitSwapVerifier', function() {
     })
   })
 
-  describe.skip('tokenToEth', function () {
+  describe('tokenToEth', function () {
     beforeEach(async function () {
       this.tokenASwapAmount = BN(2).mul(BN18)
       this.ethSwapAmount = BN(4).mul(BN18)
