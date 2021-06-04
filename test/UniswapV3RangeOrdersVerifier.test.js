@@ -1,13 +1,14 @@
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
 const { soliditySha3 } = require('web3-utils')
-const { setupMetaAccount, deployTestTokens } = require('@brinkninja/core/test/helpers')
+const { setupMetaAccount } = require('@brinkninja/core/test/helpers')
 const { 
     BN,
     BN17,
     BN18,
     nextAvailableBit,
-    signMetaTx
+    signMetaTx,
+    deployTestTokens
   } = require('@brinkninja/test-helpers')
 
 const weth9Contract = require('./weth9/weth9Contract')
@@ -49,7 +50,7 @@ const deployWeth = async () => {
   return weth
 }
 
-describe.skip('UniswapV3RangeOrdersVerifier', function () {
+describe('UniswapV3RangeOrdersVerifier', function () {
   beforeEach(async function () {
     this.weth = await deployWeth()
     this.createRangeOrderAccountCallData = createRangeOrderAccountCallData.bind(this)
