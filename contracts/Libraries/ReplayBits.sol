@@ -4,6 +4,7 @@ pragma solidity ^0.7.0;
 /// @title Bit replay protection library
 /// @notice Handles storage and loads for replay protection bits
 /// @dev Solution adapted from https://github.com/PISAresearch/metamask-comp/blob/77fa8295c168ee0b6bf801cbedab797d6f8cfd5d/src/contracts/BitFlipMetaTransaction/README.md
+/// @dev This is a gas optimized technique that stores up to 256 replay protection bits per bytes32 slot
 library ReplayBits {
   /// @dev Returns a boolean indicating if the given bit is "flipped"
   /// @dev Value of bit cannot be zero and must represent a single bit
@@ -12,7 +13,7 @@ library ReplayBits {
   /// @return used Whether the bitmapIndex and bit has been used
   function bitUsed(uint256 bitmapIndex, uint256 bit) internal view returns (bool used) {
     require(validBit(bit), "INVALID_BIT");
-    used = loadBitmap(bitmapIndex) & bit != 0;
+    used = loadUint(bitmapPtr(bitmapIndex)) & bit != 0;
   }
 
   /// @dev Adds a bit to the uint256 bitmap at bitmapIndex
@@ -21,25 +22,27 @@ library ReplayBits {
   /// @param bit The value of the bit within the uint256 bitmap
   function useBit(uint256 bitmapIndex, uint256 bit) internal {
     require(validBit(bit), "INVALID_BIT");
-    uint256 updatedBitmap = loadBitmap(bitmapIndex) | bit;
-    assembly {
-      sstore(replayProtectionPtr, updatedBitmap)
-    }
-  }
-
-  /// @dev Returns the bitmap at bitmapIndex
-  /// @param bitmapIndex The index of the uint256 bitmap
-  /// @return bitmap The uint256 bitmap
-  function loadBitmap(uint256 bitmapIndex) internal view returns (uint256 bitmap) {
-    bytes32 ptr = keccak256(abi.encodePacked("bmp", bitmapIndex));
-    assembly {
-      bitmap := sload(ptr)
-    }
+    bytes32 ptr = bitmapPtr(bitmapIndex);
+    uint256 updatedBitmap = loadUint(ptr) | bit;
+    assembly { sstore(ptr, updatedBitmap) }
   }
 
   /// @dev Check that a bit is valid
   /// @return True if bit is greater than zero and represents a single bit
   function validBit(uint256 bit) internal pure returns (bool) {
     return bit > 0 && bit & bit-1 == 0;
+  }
+
+  /// @dev Get a bitmap storage pointer
+  /// @return The bytes32 pointer to the storage location of the uint256 bitmap at bitmapIndex
+  function bitmapPtr (uint256 bitmapIndex) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked("bmp", bitmapIndex));
+  }
+
+  /// @dev Returns the uint256 value at storage location ptr
+  /// @param ptr The storage location pointer
+  /// @return val The uint256 value at storage location ptr
+  function loadUint(bytes32 ptr) internal view returns (uint256 val) {
+    assembly { val := sload(ptr) }
   }
 }
