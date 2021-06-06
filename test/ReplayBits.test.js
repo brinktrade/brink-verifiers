@@ -6,7 +6,7 @@ const {
 } = require('@brinkninja/test-helpers')
 const { expect } = chaiSolidity()
 
-describe('ReplayBits', function () {
+describe.only('ReplayBits', function () {
   beforeEach(async function () {
     const ReplayBitsTest = await ethers.getContractFactory('ReplayBitsTest')
     this.replayBits = await ReplayBitsTest.deploy()
@@ -28,11 +28,16 @@ describe('ReplayBits', function () {
     })
 
     it('when bit is zero, should revert with INVALID_BIT', async function() {
-      expect(this.replayBits.useBit(BN(0), BN(0))).to.be.revertedWith('INVALID_BIT')
+      await expect(this.replayBits.useBit(BN(0), BN(0))).to.be.revertedWith('INVALID_BIT')
     })
 
     it('when bit is not a single bit, should revert with INVALID_BIT', async function () {
-      expect(this.replayBits.useBit(BN(0), BN(3))).to.be.revertedWith('INVALID_BIT')
+      await expect(this.replayBits.useBit(BN(0), BN(3))).to.be.revertedWith('INVALID_BIT')
+    })
+
+    it('when bit is used, should revert with BIT_USED', async function () {
+      await this.replayBits.useBit(BN(1), BN(4)) // slot 1, index 2 : 2**2 = 4
+      await expect(this.replayBits.useBit(BN(1), BN(4))).to.be.revertedWith('BIT_USED')
     })
   })
 
@@ -62,11 +67,11 @@ describe('ReplayBits', function () {
     })
 
     it('when bit is zero, should revert with INVALID_BIT', async function() {
-      expect(this.replayBits.bitUsed(BN(0), BN(0))).to.be.revertedWith('INVALID_BIT')
+      await expect(this.replayBits.bitUsed(BN(0), BN(0))).to.be.revertedWith('INVALID_BIT')
     })
 
     it('when bit is not a single bit, should revert with INVALID_BIT', async function () {
-      expect(this.replayBits.bitUsed(BN(0), BN(3))).to.be.revertedWith('INVALID_BIT')
+      await expect(this.replayBits.bitUsed(BN(0), BN(3))).to.be.revertedWith('INVALID_BIT')
     })
   })
 })

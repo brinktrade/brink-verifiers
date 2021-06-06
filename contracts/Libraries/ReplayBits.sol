@@ -28,7 +28,7 @@ library ReplayBits {
   /// @param bitmapIndex The index of the uint256 bitmap
   /// @param bit The value of the bit within the uint256 bitmap
   function useBit(uint256 bitmapIndex, uint256 bit) internal {
-    require(validBit(bit), "INVALID_BIT");
+    require(!bitUsed(bitmapIndex, bit), "BIT_USED");
     bytes32 ptr = bitmapPtr(bitmapIndex);
     uint256 updatedBitmap = loadUint(ptr) | bit;
     assembly { sstore(ptr, updatedBitmap) }
