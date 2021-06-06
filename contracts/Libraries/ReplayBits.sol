@@ -16,6 +16,13 @@ library ReplayBits {
     used = loadUint(bitmapPtr(bitmapIndex)) & bit != 0;
   }
 
+  /// @dev Returns a uint256 bitmap
+  /// @param bitmapIndex The index of the uint256 bitmap
+  /// @return bitmap The uint256 bitmap at bitmapIndex
+  function loadBitmap (uint256 bitmapIndex) internal view returns (uint256 bitmap) {
+    bitmap = loadUint(bitmapPtr(bitmapIndex));
+  }
+
   /// @dev Adds a bit to the uint256 bitmap at bitmapIndex
   /// @dev Value of bit cannot be zero and must represent a single bit
   /// @param bitmapIndex The index of the uint256 bitmap
