@@ -6,7 +6,7 @@ const {
 } = require('@brinkninja/test-helpers')
 const { expect } = chaiSolidity()
 
-describe.only('ReplayBits', function () {
+describe('ReplayBits', function () {
   beforeEach(async function () {
     const ReplayBitsTest = await ethers.getContractFactory('ReplayBitsTest')
     this.replayBits = await ReplayBitsTest.deploy()
