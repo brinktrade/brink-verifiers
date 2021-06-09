@@ -1,71 +1,62 @@
-const { expect } = require("chai");
 const { ethers } = require('hardhat')
-const { constants, getSigners } = require('@openzeppelin/test-helpers')
-const { ZERO_ADDRESS } = constants
+const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
+const {
+  randomAddress,
+  encodeFunctionCall,
+  chaiSolidity
+} = require('@brinkninja/test-helpers')
+const { expect } = chaiSolidity()
 
-describe("ProxyAdminVerifier", function() {
+describe('ProxyAdminVerifier', function() {
   beforeEach(async function () {
-    const [ defaultAccount, someOtherAccount ] = await ethers.getSigners()
+
+    const { defaultAccount, metaAccountOwner } = await getSigners()
     this.defaultAccount = defaultAccount
-    this.someOtherAccount = someOtherAccount
+    this.metaAccountOwner = metaAccountOwner
+    this.random = await randomAddress()
+
+    const MockAccount = await ethers.getContractFactory('MockAccount')
+    this.upgradeToAccount = await MockAccount.deploy(this.random.address, this.random.address)
+
+    const ProxyAdminVerifier = await ethers.getContractFactory('ProxyAdminVerifier')
+    this.proxyAdminVerifier = await ProxyAdminVerifier.deploy()
+
+    this.metaAccount = (await setupMetaAccount()).metaAccount
+    this.metaAccountAsProxyAdmin = await ethers.getContractAt('ProxyAdminVerifier', this.metaAccount.address)
   })
 
-  it("upgradeTo() upgrades implementation", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.upgradeTo(this.someOtherAccount.address))
-      .to.emit(proxyAdminVerifier, 'Upgraded')
-      .withArgs(this.someOtherAccount.address);
-  }); 
+  describe('upgradeTo()', function () {
+    beforeEach(async function () {
+      this.promise = this.metaAccount.connect(this.metaAccountOwner).delegateCall(
+        this.proxyAdminVerifier.address,
+        encodeFunctionCall('upgradeTo', ['address'], [this.upgradeToAccount.address])
+      )
+    })
+    it('should upgrade the implementation address', async function () {
+      await this.promise
+      expect(await this.metaAccount.implementation()).to.equal(this.upgradeToAccount.address)
+    })
+    it('should emit an Upgraded event', async function () {
+      await expect(this.promise)
+        .to.emit(this.metaAccountAsProxyAdmin, 'Upgraded').withArgs(this.upgradeToAccount.address)
+    })
+  })
 
-  it("upgradeTo() with zero address reverts with: 'ProxyAdminVerifier: upgradeTo with zero address implementation'", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.upgradeTo(ZERO_ADDRESS))
-      .to.be.revertedWith('ProxyAdminVerifier: upgradeTo with zero address implementation')
-  }); 
-
-  it("addProxyOwner() adds a proxy owner address", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.addProxyOwner(this.someOtherAccount.address))
-      .to.emit(proxyAdminVerifier, 'OwnerAdded')
-      .withArgs(this.someOtherAccount.address);
-  }); 
-
-  it("addProxyOwner() tries to add same address twice, reverts with: 'ProxyAdminVerifier: addOwner with existing owner'", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.addProxyOwner(this.someOtherAccount.address))
-      .to.emit(proxyAdminVerifier, 'OwnerAdded')
-      .withArgs(this.someOtherAccount.address);
-    await expect(proxyAdminVerifier.addProxyOwner(this.someOtherAccount.address))
-      .to.be.revertedWith('ProxyAdminVerifier: addOwner with existing owner')
-  });
-
-  it("addProxyOwner() tries to add zero address, reverts with: 'ProxyAdminVerifier: addOwner with zero address'", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.addProxyOwner(ZERO_ADDRESS))
-      .to.be.revertedWith('ProxyAdminVerifier: addOwner with zero address')
-  });
-
-  it("removeProxyOwner() removes a proxy owner", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.addProxyOwner(this.someOtherAccount.address))
-      .to.emit(proxyAdminVerifier, 'OwnerAdded')
-      .withArgs(this.someOtherAccount.address);
-    await expect(proxyAdminVerifier.removeProxyOwner(this.someOtherAccount.address))
-      .to.emit(proxyAdminVerifier, 'OwnerRemoved')
-      .withArgs(this.someOtherAccount.address);
-  });
-
-  it("removeProxyOwner() tries to remove address that isn't an owner, reverts with: 'ProxyAdminVerifier: removeOwner with owner that does not exist'", async function() {
-    const ProxyAdminVerifier = await ethers.getContractFactory("ProxyAdminVerifier");
-    const proxyAdminVerifier = await ProxyAdminVerifier.deploy()
-    await expect(proxyAdminVerifier.removeProxyOwner(this.someOtherAccount.address))
-      .to.be.revertedWith('ProxyAdminVerifier: removeOwner with owner that does not exist')
-  });
+  describe('setOwner()', function () {
+    beforeEach(async function () {
+      this.promise = this.metaAccount.connect(this.metaAccountOwner).delegateCall(
+        this.proxyAdminVerifier.address,
+        encodeFunctionCall('setProxyOwner', ['address'], [this.random.address])
+      )
+    })
+    it('should set the proxy owner address', async function () {
+      await this.promise
+      expect(await this.metaAccount.proxyOwner()).to.equal(this.random.address)
+    })
+    it('should emit an Upgraded event', async function () {
+      await expect(this.promise)
+        .to.emit(this.metaAccountAsProxyAdmin, 'ProxyOwnerChanged').withArgs(this.random.address)
+    })
+  })
 
 })
