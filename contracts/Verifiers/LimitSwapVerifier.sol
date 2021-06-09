@@ -5,102 +5,93 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
 import "@brinkninja/core/contracts/Called/CallExecutable.sol";
+import "../Libraries/ReplayBits.sol";
 
-/**
- * @dev Contains functions for ERC20 limit swaps.
- *
- * This "Verifier" contract is deployed once. It can be called on a Proxy account
- * with a signed `executeDelegateCall` message (see AccountLogic.sol in brink-core). 
- * All functions are public, which is safe because this
- * contract is called directly, it has no way to access storage on Proxy (user account)
- * instances.
- */
+/// @title Verifier for ERC20 limit swaps
+/// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
 contract LimitSwapVerifier is ProxyGettable {
   using SafeMath for uint256;
 
-  /**
-   * @dev Executes an ERC20 to ERC20 swap.
-   *
-   * Requirements:
-   *
-   * - `expiryBlock` must be greater than current block
-   * - Amount of `tokenOut` received must be greater or equal to `tokenOutAmount`
-   *
-   * IMPORTANT: This function should be called from `executeDelegateCall`
-   * (see AccountLogic.sol in brink-core). The first 5 parameters, `tokenIn`, `tokenOut`,
-   * `tokenInAmount`, `tokenOutAmount`, and `expiryBlock`, should be included in the
-   * signed message. The last 2 parameters, `to` and `data` are meant to be "unsigned".
-   * This allows secure permissionless execution of the signed swap.
-   */
+  /// @dev Executes an ERC20 to ERC20 limit swap
+  /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
+  /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
+  /// @param bit The value of the replay bit [signed]
+  /// @param tokenIn The input token provided for the swap [signed]
+  /// @param tokenOut The output token required to be received from the swap [signed]
+  /// @param tokenInAmount Amount of tokenIn provided [signed]
+  /// @param tokenOutAmount Amount of tokenOut required to be received [signed]
+  /// @param expiryBlock The block when the swap expires [signed]
+  /// @param to Address of the contract that will fulfill the swap [unsigned]
+  /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToToken(
-    IERC20 tokenIn, IERC20 tokenOut, uint256 tokenInAmount, uint256 tokenOutAmount, uint256 expiryBlock,
-    address to, bytes memory data
+    uint256 bitmapIndex, uint256 bit, IERC20 tokenIn, IERC20 tokenOut, uint256 tokenInAmount, uint256 tokenOutAmount, uint256 expiryBlock, address to, bytes memory data
   )
-    public
+    external
   {
-    require(expiryBlock > block.number, "LimitSwapVerifier: tokenToToken() expiryBlock exceeded");
+    require(expiryBlock > block.number, "EXPIRED");
+  
+    ReplayBits.useBit(bitmapIndex, bit);
 
-    // store initial tokenOutBalance
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
-    // send token to execution contract
     tokenIn.transfer(to, tokenInAmount);
-
-    // execute call data on the CallExecutor contract
     CallExecutable(_implementation()).callExecutor().proxyCall(to, data);
 
-    // calculate amount of tokenOut transferred to this contract
-    uint256 tokenOutReceived = tokenOut.balanceOf(address(this)).sub(tokenOutBalance);
-
-    // verify that enough tokenOut was received
-    require(tokenOutReceived >= tokenOutAmount, "LimitSwapVerifier: tokenToToken() tokenOut received is less than allowed");
+    require(tokenOut.balanceOf(address(this)).sub(tokenOutBalance) >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
   }
 
-  /// @dev TODO: natspec
+  /// @dev Executes an ETH to ERC20 limit swap
+  /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
+  /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
+  /// @param bit The value of the replay bit [signed]
+  /// @param token The output token required to be received from the swap [signed]
+  /// @param ethAmount Amount of ETH provided [signed]
+  /// @param tokenAmount Amount of token required to be received [signed]
+  /// @param expiryBlock The block when the swap expires [signed]
+  /// @param to Address of the contract that will fulfill the swap [unsigned]
+  /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function ethToToken(
-    IERC20 token, uint256 ethAmount, uint256 tokenAmount, uint256 expiryBlock,
+    uint256 bitmapIndex, uint256 bit, IERC20 token, uint256 ethAmount, uint256 tokenAmount, uint256 expiryBlock,
     address to, bytes memory data
   )
-    public
+    external
   {
-    require(expiryBlock > block.number, "LimitSwapVerifier: ethToToken() expiryBlock exceeded");
-    require(address(this).balance >= ethAmount, "LimitSwapVerifier: ethToToken() not enough ether");
+    require(expiryBlock > block.number, "EXPIRED");
+    require(address(this).balance >= ethAmount, "NOT_ENOUGH_ETH");
 
-    // store initial tokenBalance
+    ReplayBits.useBit(bitmapIndex, bit);
+
     uint256 tokenBalance = token.balanceOf(address(this));
 
-    // execute the unsigned call on the CallExecutor contract
     CallExecutable(implementation()).callExecutor().proxyPayableCall{value: ethAmount}(to, data);
 
-    // calculate amount of token transferred to this contract
-    uint256 tokenReceived = token.balanceOf(address(this)).sub(tokenBalance);
-
-    // verify that enough token was received
-    require(tokenReceived >= tokenAmount, "LimitSwapVerifier: ethToToken() token received is less than allowed");
+    require(token.balanceOf(address(this)).sub(tokenBalance) >= tokenAmount, "NOT_ENOUGH_RECEIVED");
   }
 
-  /// @dev TODO: natspec
+  /// @dev Executes an ERC20 to ETH limit swap
+  /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
+  /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
+  /// @param bit The value of the replay bit [signed]
+  /// @param token The input token provided for the swap [signed]
+  /// @param tokenAmount Amount of tokenIn provided [signed]
+  /// @param expiryBlock The block when the swap expires [signed]
+  /// @param to Address of the contract that will fulfill the swap [unsigned]
+  /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToEth(
-    IERC20 token, uint256 tokenAmount, uint256 ethAmount, uint256 expiryBlock,
+    uint256 bitmapIndex, uint256 bit, IERC20 token, uint256 tokenAmount, uint256 ethAmount, uint256 expiryBlock,
     address to, bytes memory data
   )
-    public
+    external
   {
-    require(expiryBlock > block.number, "LimitSwapVerifier: tokenToEth() expiryBlock exceeded");
+    require(expiryBlock > block.number, "EXPIRED");
 
-    // store initial ethBalance
+    ReplayBits.useBit(bitmapIndex, bit);
+    
     uint256 ethBalance = address(this).balance;
 
-    // send token to execution contract
     token.transfer(to, tokenAmount);
-
-    // execute the unsigned call on the CallExecutor contract
     CallExecutable(implementation()).callExecutor().proxyCall(to, data);
 
-    // calculate amount of ether sent to this contract
-    uint256 ethReceived = address(this).balance.sub(ethBalance);
-
-    // verify that enough ether was received
-    require(ethReceived >= ethAmount, "LimitSwapVerifier: tokenToEth() ether received is less than allowed");
+    require(address(this).balance.sub(ethBalance) >= ethAmount, "NOT_ENOUGH_RECEIVED");
   }
 }

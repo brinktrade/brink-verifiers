@@ -58,7 +58,7 @@ describe.skip('UniswapV3RangeOrdersVerifier', function () {
 
     const UniswapV3RangeOrdersVerifier = await ethers.getContractFactory('UniswapV3RangeOrdersVerifier')
     const UniV3RangeOrdersAdapter = await ethers.getContractFactory('UniV3RangeOrdersAdapter')
-    const MockAccountLogic = await ethers.getContractFactory('MockAccountLogic')
+    const MockAccount = await ethers.getContractFactory('MockAccount')
     const MockRangeOrderPositionManager = await ethers.getContractFactory('MockRangeOrderPositionManager')
 
     this.ethStoreAccount = await getSigner('ethStoreAccount')
@@ -86,16 +86,16 @@ describe.skip('UniswapV3RangeOrdersVerifier', function () {
     const { metaAccount: account9 } = await setupMetaAccount(this.owner9)
     const { metaAccount: account10 } = await setupMetaAccount(this.owner10)
 
-    this.account1 = await MockAccountLogic.attach(account1.address)
-    this.account2 = await MockAccountLogic.attach(account2.address)
-    this.account3 = await MockAccountLogic.attach(account3.address)
-    this.account4 = await MockAccountLogic.attach(account4.address)
-    this.account5 = await MockAccountLogic.attach(account5.address)
-    this.account6 = await MockAccountLogic.attach(account6.address)
-    this.account7 = await MockAccountLogic.attach(account7.address)
-    this.account8 = await MockAccountLogic.attach(account8.address)
-    this.account9 = await MockAccountLogic.attach(account9.address)
-    this.account10 = await MockAccountLogic.attach(account10.address)
+    this.account1 = await MockAccount.attach(account1.address)
+    this.account2 = await MockAccount.attach(account2.address)
+    this.account3 = await MockAccount.attach(account3.address)
+    this.account4 = await MockAccount.attach(account4.address)
+    this.account5 = await MockAccount.attach(account5.address)
+    this.account6 = await MockAccount.attach(account6.address)
+    this.account7 = await MockAccount.attach(account7.address)
+    this.account8 = await MockAccount.attach(account8.address)
+    this.account9 = await MockAccount.attach(account9.address)
+    this.account10 = await MockAccount.attach(account10.address)
 
     // assume next available is the same for all accounts...
     const { bitmapIndex, bit } = await nextAvailableBit(this.account1)

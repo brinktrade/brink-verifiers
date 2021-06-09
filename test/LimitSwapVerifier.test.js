@@ -5,27 +5,26 @@ const {
   BN18,
   encodeFunctionCall,
   splitCallData,
-  testMetaTxEndpoint,
+  execMetaTx,
   chaiSolidity
 } = require('@brinkninja/test-helpers')
 const { expect } = chaiSolidity()
 
-const EXECUTE_PARTIAL_SIGNED_DELEGATE_CALL_PARAM_TYPES = [
-    { name: 'to', type: 'address' },
-    { name: 'data', type: 'bytes' }
+const LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES = [
+  { name: 'bitmapIndex', type: 'uint256' },
+  { name: 'bit', type: 'uint256' },
+  { name: 'tokenIn', type: 'address' },
+  { name: 'tokenOut', type: 'address' },
+  { name: 'tokenInAmount', type: 'uint256' },
+  { name: 'tokenOutAmount', type: 'uint256' },
+  { name: 'expiryBlock', type: 'uint256' },
+  { name: 'to', type: 'address' },
+  { name: 'data', type: 'bytes' },
 ]
 
-const LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES = [
-    { name: 'tokenIn', type: 'address' },
-    { name: 'tokenOut', type: 'address' },
-    { name: 'tokenInAmount', type: 'uint256' },
-    { name: 'tokenOutAmount', type: 'uint256' },
-    { name: 'expiryBlock', type: 'uint256' },
-    { name: 'to', type: 'address' },
-    { name: 'data', type: 'bytes' },
-  ]
-
 const LIMIT_SWAP_ETH_TO_TOKEN_PARAM_TYPES = [
+  { name: 'bitmapIndex', type: 'uint256' },
+  { name: 'bit', type: 'uint256' },
   { name: 'token', type: 'address' },
   { name: 'ethAmount', type: 'uint256' },
   { name: 'tokenAmount', type: 'uint256' },
@@ -35,6 +34,8 @@ const LIMIT_SWAP_ETH_TO_TOKEN_PARAM_TYPES = [
 ]
 
 const LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES = [
+  { name: 'bitmapIndex', type: 'uint256' },
+  { name: 'bit', type: 'uint256' },
   { name: 'token', type: 'address' },
   { name: 'tokenAmount', type: 'uint256' },
   { name: 'ethAmount', type: 'uint256' },
@@ -42,19 +43,6 @@ const LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES = [
   { name: 'to', type: 'address' },
   { name: 'data', type: 'bytes' },
 ]
-
-function getSignerFn (signerName) {
-  return async function () {
-    const signer = (await getSigners())[signerName]
-    return signer
-  }
-}
-
-async function getSigner (signerName) {
-  const fn = getSignerFn(signerName)
-  const signer = await fn()
-  return signer
-}
 
 describe('LimitSwapVerifier', function() {
   beforeEach(async function () {
@@ -67,8 +55,27 @@ describe('LimitSwapVerifier', function() {
     this.testFulfillSwap = await TestFulfillSwap.deploy()
     this.limitSwapVerifier = await LimitSwapVerifier.deploy()
     this.metaAccount = metaAccount
+    
+    const { defaultAccount, metaAccountOwner } = await getSigners()
+    this.defaultAccount = defaultAccount
+    this.metaAccountOwner = metaAccountOwner
     this.tokenA = tokenA
     this.tokenB = tokenB
+
+    this.partialSignedDelegateCall = ({ signedData, unsignedData }) => {
+      return execMetaTx({
+        ...{
+          contract: this.metaAccount,
+          method: 'metaPartialSignedDelegateCall',
+          signer: this.metaAccountOwner
+        },
+        params: [
+          this.limitSwapVerifier.address,
+          signedData
+        ],
+        unsignedData
+      })
+    }
 
     this.latestBlock = BN(await ethers.provider.getBlockNumber())
     this.expiryBlock = this.latestBlock.add(BN(1000)) // 1,000 blocks from now
@@ -82,152 +89,81 @@ describe('LimitSwapVerifier', function() {
       await this.tokenA.mint(this.metaAccount.address, this.tokenASwapAmount)
       await this.tokenB.mint(this.testFulfillSwap.address, this.tokenBSwapAmount)
 
-      const numSignedParams = 5
+      const numSignedParams = 7
+      const swapParams = [
+        BN(0), BN(1),
+        this.tokenA.address,
+        this.tokenB.address,
+        this.tokenASwapAmount.toString(),
+        this.tokenBSwapAmount.toString()
+      ]
 
       this.successCall = splitCallData(encodeFunctionCall(
         'tokenToToken',
         LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.tokenB.address,
-          this.tokenASwapAmount.toString(),
-          this.tokenBSwapAmount.toString(),
+          ...swapParams,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenB.address,
-              this.tokenBSwapAmount.toString(),
-              this.metaAccount.address
-            ]
+            [ this.tokenB.address, this.tokenBSwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
-
-      this.failCall = splitCallData(encodeFunctionCall(
-        'tokenToToken',
-        LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES.map(t => t.type),
-        [
-          this.tokenA.address,
-          this.tokenB.address,
-          this.tokenASwapAmount.toString(),
-          this.tokenBSwapAmount.toString(),
-          this.expiryBlock.toString(),
-          this.testFulfillSwap.address,
-          encodeFunctionCall(
-            'fulfillTokenOutSwap',
-            ['address', 'uint', 'address'],
-            [
-              this.tokenB.address,
-              // fail when trying to transfer more Token B than the TestFulfillSwap contract has
-              this.tokenBSwapAmount.mul(BN(2)).toString(),
-              this.metaAccount.address
-            ]
-          )
-        ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
       this.notEnoughTokenCall = splitCallData(encodeFunctionCall(
         'tokenToToken',
         LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.tokenB.address,
-          this.tokenASwapAmount.toString(),
-          this.tokenBSwapAmount.toString(),
+          ...swapParams,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenB.address,
-              // fail when trying to transfer less than the signed call requires
-              this.tokenBSwapAmount.sub(BN(1)).toString(),
-              this.metaAccount.address
-            ]
+            // fail when trying to transfer less than the signed call requires
+            [ this.tokenB.address, this.tokenBSwapAmount.sub(BN(1)).toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
-      this.expiredBlockCall = splitCallData(encodeFunctionCall(
+      this.expiredCall = splitCallData(encodeFunctionCall(
         'tokenToToken',
         LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.tokenB.address,
-          this.tokenASwapAmount.toString(),
-          this.tokenBSwapAmount.toString(),
+          ...swapParams,
           this.expiredBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenB.address,
-              this.tokenBSwapAmount.toString(),
-              this.metaAccount.address
-            ]
+            [ this.tokenB.address, this.tokenBSwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
     })
 
-    testMetaTxEndpoint.call(this, {
-      contract: 'metaAccount',
-      method: 'executePartialSignedDelegateCall',
-      paramTypes: EXECUTE_PARTIAL_SIGNED_DELEGATE_CALL_PARAM_TYPES,
-      conditions: [
-        {
-          describe: 'when given a valid tokenToToken and call',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.successCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.successCall.unsignedData] },
-          testFn: function () {
-            it('should execute successfully', async function () {
-              expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(BN(0))
-              expect(await this.tokenB.balanceOf(this.metaAccount.address)).to.equal(this.tokenBSwapAmount)
-              expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
-              expect(await this.tokenB.balanceOf(this.testFulfillSwap.address)).to.equal(BN(0))
-            })
-          }
-        },
-        {
-          describe: 'when the unsigned call fails',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.failCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.failCall.unsignedData] },
-          expectRevert: 'ERC20: transfer amount exceeds balance'
-        },
-        {
-          describe: 'when the unsigned call transfer is insufficient',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.notEnoughTokenCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.notEnoughTokenCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: tokenToToken() tokenOut received is less than allowed'
-        },
-        {
-          describe: 'when expiryBlock has been mined',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.expiredBlockCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.expiredBlockCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: tokenToToken() expiryBlock exceeded'
-        }
-      ]
+    it('when call is valid, should execute the swap', async function () {
+      await this.partialSignedDelegateCall(this.successCall)
+      expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(BN(0))
+      expect(await this.tokenB.balanceOf(this.metaAccount.address)).to.equal(this.tokenBSwapAmount)
+      expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
+      expect(await this.tokenB.balanceOf(this.testFulfillSwap.address)).to.equal(BN(0))
+    })
+
+    it('when not enough token is received, should revert with NOT_ENOUGH_RECEIVED', async function () {
+      await expect(this.partialSignedDelegateCall(this.notEnoughTokenCall)).to.be.revertedWith('NOT_ENOUGH_RECEIVED')
+    })
+
+    it('when swap is expired, should revert with EXPIRED', async function () {
+      await expect(this.partialSignedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+    })
+
+    it('when swap is replayed, should revert with BIT_USED', async function () {
+      await this.partialSignedDelegateCall(this.successCall)
+      await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
   })
 
@@ -239,40 +175,40 @@ describe('LimitSwapVerifier', function() {
       // 2 calls needed for the used bit revert test, so send enough eth for both
       this.metaAccountInitialEthBalance = this.ethSwapAmount.mul(BN(2))
 
-      const ethStoreAccount = await getSigner('defaultAccount')
-      await ethStoreAccount.sendTransaction({
+      await this.defaultAccount.sendTransaction({
         to: this.metaAccount.address,
         value: this.metaAccountInitialEthBalance
       })
       await this.tokenA.mint(this.testFulfillSwap.address, this.tokenASwapAmount)
 
-      const numSignedParams = 4
+      const numSignedParams = 6
+      const swapParams = [
+        BN(0), BN(1),
+        this.tokenA.address,
+        this.ethSwapAmount.toString(),
+        this.tokenASwapAmount.toString(),
+      ]
 
       this.successCall = splitCallData(encodeFunctionCall(
         'ethToToken',
         LIMIT_SWAP_ETH_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.ethSwapAmount.toString(),
-          this.tokenASwapAmount.toString(),
+          ...swapParams,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenA.address,
-              this.tokenASwapAmount.toString(),
-              this.metaAccount.address
-            ]
+            [ this.tokenA.address, this.tokenASwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
       this.notEnoughBalanceCall = splitCallData(encodeFunctionCall(
         'ethToToken',
         LIMIT_SWAP_ETH_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
+          BN(0), BN(1),
           this.tokenA.address,
           this.metaAccountInitialEthBalance.add(1).toString(),
           this.tokenASwapAmount.toString(),
@@ -281,112 +217,68 @@ describe('LimitSwapVerifier', function() {
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenA.address,
-              this.tokenASwapAmount.toString(),
-              this.metaAccount.address
-            ]
+            [ this.tokenA.address, this.tokenASwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
       this.notEnoughReceivedCall = splitCallData(encodeFunctionCall(
         'ethToToken',
         LIMIT_SWAP_ETH_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.ethSwapAmount.toString(),
-          this.tokenASwapAmount.toString(),
+          ...swapParams,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenA.address,
-              // fail when trying to transfer less than the signed call requires
-              this.tokenASwapAmount.sub(BN(1)).toString(),
-              this.metaAccount.address
-            ]
+            // fail when trying to transfer less than the signed call requires
+            [ this.tokenA.address, this.tokenASwapAmount.sub(BN(1)).toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
-      this.expiredBlockCall = splitCallData(encodeFunctionCall(
+      this.expiredCall = splitCallData(encodeFunctionCall(
         'ethToToken',
         LIMIT_SWAP_ETH_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.ethSwapAmount.toString(),
-          this.tokenASwapAmount.toString(),
+          ...swapParams,
           this.expiredBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [
-              this.tokenA.address,
-              this.tokenASwapAmount.toString(),
-              this.metaAccount.address
-            ]
+            [ this.tokenA.address, this.tokenASwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
     })
 
-    testMetaTxEndpoint.call(this, {
-      contract: 'metaAccount',
-      method: 'executePartialSignedDelegateCall',
-      paramTypes: EXECUTE_PARTIAL_SIGNED_DELEGATE_CALL_PARAM_TYPES,
-      conditions: [
-        {
-          describe: 'when given a valid ethToToken call',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.successCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.successCall.unsignedData] },
-          testFn: function () {
-            it('should execute successfully', async function () {
-              expect(BN(await ethers.provider.getBalance(this.metaAccount.address))).to.equal(this.metaAccountInitialEthBalance.sub(this.ethSwapAmount))
-              expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(this.tokenASwapAmount)
-              expect(BN(await ethers.provider.getBalance(this.testFulfillSwap.address))).to.equal(this.ethSwapAmount)
-              expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(BN(0))
-            })
-          }
-        },
-        {
-          describe: 'when account does not have enough ETH',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.notEnoughBalanceCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.notEnoughBalanceCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: ethToToken() not enough ether'
-        },
-        {
-          describe: 'when the unsigned call transfer into account is insufficient',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.notEnoughReceivedCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.notEnoughReceivedCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: ethToToken() token received is less than allowed'
-        },
-        {
-          describe: 'when the expiryBlock has been mined',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.expiredBlockCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.expiredBlockCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: ethToToken() expiryBlock exceeded'
-        }
-      ]
+    it('when given a valid ethToToken call, should execute the swap', async function () {
+      await this.partialSignedDelegateCall(this.successCall)
+      expect(BN(await ethers.provider.getBalance(this.metaAccount.address)))
+        .to.equal(this.metaAccountInitialEthBalance.sub(this.ethSwapAmount))
+      expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(this.tokenASwapAmount)
+      expect(BN(await ethers.provider.getBalance(this.testFulfillSwap.address))).to.equal(this.ethSwapAmount)
+      expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(BN(0))
+    })
+
+    it('when account does not have enough ETH, should revert', async function () {
+      await expect(this.partialSignedDelegateCall(this.notEnoughBalanceCall)).to.be.revertedWith('NOT_ENOUGH_ETH')
+    })
+
+    it('when not enough token is received, should revert with NOT_ENOUGH_RECEIVED', async function () {
+      await expect(this.partialSignedDelegateCall(this.notEnoughReceivedCall))
+        .to.be.revertedWith('NOT_ENOUGH_RECEIVED')
+    })
+
+    it('when swap is expired, should revert with EXPIRED', async function () {
+      await expect(this.partialSignedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+    })
+
+    it('when swap is replayed, should revert with BIT_USED', async function () {
+      await this.partialSignedDelegateCall(this.successCall)
+      await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
   })
 
@@ -394,23 +286,32 @@ describe('LimitSwapVerifier', function() {
     beforeEach(async function () {
       this.tokenASwapAmount = BN(2).mul(BN18)
       this.ethSwapAmount = BN(4).mul(BN18)
-      await this.tokenA.mint(this.metaAccount.address, this.tokenASwapAmount)
 
-      const ethStoreAccount = await getSigner('defaultAccount')
-      await ethStoreAccount.sendTransaction({
+      await this.tokenA.mint(this.metaAccount.address, this.tokenASwapAmount)
+      await this.defaultAccount.sendTransaction({
         to: this.testFulfillSwap.address,
         value: this.ethSwapAmount
       })
 
-      const numSignedParams = 4
+      this.tokenToEthExecArgs = {
+        contract: this.metaAccount,
+        method: 'metaPartialSignedDelegateCall',
+        signer: this.metaAccountOwner
+      }
+
+      const numSignedParams = 6
+      const swapParams = [
+        BN(0), BN(1),
+        this.tokenA.address,
+        this.tokenASwapAmount.toString(),
+        this.ethSwapAmount.toString(),
+      ]
 
       this.successCall = splitCallData(encodeFunctionCall(
         'tokenToEth',
         LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.tokenASwapAmount.toString(),
-          this.ethSwapAmount.toString(),
+          ...swapParams,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
@@ -419,32 +320,13 @@ describe('LimitSwapVerifier', function() {
             [ this.ethSwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
-
-      this.notEnoughBalanceCall = splitCallData(encodeFunctionCall(
-        'tokenToEth',
-        LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES.map(t => t.type),
-        [
-          this.tokenA.address,
-          this.tokenASwapAmount.add(1).toString(),
-          this.ethSwapAmount.toString(),
-          this.expiryBlock.toString(),
-          this.testFulfillSwap.address,
-          encodeFunctionCall(
-            'fulfillEthOutSwap',
-            ['uint', 'address'],
-            [ this.ethSwapAmount.toString(), this.metaAccount.address ]
-          )
-        ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
       this.notEnoughReceivedCall = splitCallData(encodeFunctionCall(
         'tokenToEth',
         LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.tokenASwapAmount.toString(),
-          this.ethSwapAmount.toString(),
+          ...swapParams,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
@@ -453,15 +335,13 @@ describe('LimitSwapVerifier', function() {
             [ this.ethSwapAmount.sub(1).toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
 
-      this.expiredBlockCall = splitCallData(encodeFunctionCall(
+      this.expiredCall = splitCallData(encodeFunctionCall(
         'tokenToEth',
         LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES.map(t => t.type),
         [
-          this.tokenA.address,
-          this.tokenASwapAmount.toString(),
-          this.ethSwapAmount.toString(),
+          ...swapParams,
           this.expiredBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
@@ -470,62 +350,29 @@ describe('LimitSwapVerifier', function() {
             [ this.ethSwapAmount.toString(), this.metaAccount.address ]
           )
         ]
-      ).slice(2), numSignedParams)
+      ), numSignedParams)
     })
 
-    testMetaTxEndpoint.call(this, {
-      contract: 'metaAccount',
-      method: 'executePartialSignedDelegateCall',
-      paramTypes: EXECUTE_PARTIAL_SIGNED_DELEGATE_CALL_PARAM_TYPES,
-      conditions: [
-        {
-          describe: 'when given a valid tokenToEth() signature and call',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.successCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.successCall.unsignedData] },
-          testFn: function () {
-            it('should execute successfully', async function () {
-              expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(BN(0))
-              expect(BN(await ethers.provider.getBalance(this.metaAccount.address))).to.equal(this.ethSwapAmount)
-              expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
-              expect(BN(await ethers.provider.getBalance(this.testFulfillSwap.address))).to.equal(BN(0))
-            })
-          }
-        },
-        {
-          describe: 'when account does not have enough token balance',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.notEnoughBalanceCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.notEnoughBalanceCall.unsignedData] },
-          expectRevert: 'ERC20: transfer amount exceeds balance'
-        },
-        {
-          describe: 'when amount of ETH received is not enough',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.notEnoughReceivedCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.notEnoughReceivedCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: tokenToEth() ether received is less than allowed'
-        },
-        {
-          describe: 'when the expiryBlock has been mined',
-          getSigner: getSignerFn('metaAccountOwner'),
-          paramsFn: function () { return [
-            this.limitSwapVerifier.address,
-            this.expiredBlockCall.signedData
-          ] },
-          unsignedParamsFn: function () { return [this.expiredBlockCall.unsignedData] },
-          expectRevert: 'LimitSwapVerifier: tokenToEth() expiryBlock exceeded'
-        }
-      ]
+    it('when given a valid tokenToEth call, should execute the swap', async function () {
+      await this.partialSignedDelegateCall(this.successCall) 
+      expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(BN(0))
+      expect(BN(await ethers.provider.getBalance(this.metaAccount.address))).to.equal(this.ethSwapAmount)
+      expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
+      expect(BN(await ethers.provider.getBalance(this.testFulfillSwap.address))).to.equal(BN(0))
+    })
+
+    it('when amount of ETH received is not enough, should revert with NOT_ENOUGH_RECEIVED', async function () {
+      await expect(this.partialSignedDelegateCall(this.notEnoughReceivedCall))
+        .to.be.revertedWith('NOT_ENOUGH_RECEIVED')
+    })
+
+    it('when swap is expired, should revert with EXPIRED', async function () {
+      await expect(this.partialSignedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+    })
+
+    it('when swap is replayed, should revert with BIT_USED', async function () {
+      await this.partialSignedDelegateCall(this.successCall)
+      await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
   })
 })
