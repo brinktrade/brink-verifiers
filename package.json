@@ -11,7 +11,7 @@
   },
   "description": "Verifier contracts for Brink",
   "author": "@mikec & @kyrrui",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@brinkninja/range-orders": "^0.2.0",
     "@brinkninja/test-helpers": "^0.1.0",
