@@ -93,8 +93,8 @@ describe('TransferVerifier', function() {
       await expect(this.signedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
 
-    it('when account does not have enough token, should revert with TransferHelper: TRANSFER_FAILED', async function () {
-      await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('TransferHelper: TRANSFER_FAILED')
+    it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
+      await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('TRANSFER_FAILED')
     })
   })
 
@@ -141,8 +141,8 @@ describe('TransferVerifier', function() {
       await expect(this.signedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
 
-    it('when account does not have enough token, should revert with TransferHelper: ETH_TRANSFER_FAILED', async function () {
-      await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('TransferHelper: ETH_TRANSFER_FAILED')
+    it('when account does not have enough token, should revert with ETH_TRANSFER_FAILED', async function () {
+      await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('ETH_TRANSFER_FAILED')
     })
   })
 })
