@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
 import "@brinkninja/core/contracts/Called/CallExecutable.sol";
 import "../Libraries/ReplayBits.sol";
+import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ERC20 limit swaps
 /// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
@@ -34,7 +35,7 @@ contract LimitSwapVerifier is ProxyGettable {
 
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
-    tokenIn.transfer(to, tokenInAmount);
+    TransferHelper.safeTransfer(address(tokenIn), to, tokenInAmount);
     CallExecutable(_implementation()).callExecutor().proxyCall(to, data);
 
     require(tokenOut.balanceOf(address(this)).sub(tokenOutBalance) >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
@@ -89,7 +90,7 @@ contract LimitSwapVerifier is ProxyGettable {
     
     uint256 ethBalance = address(this).balance;
 
-    token.transfer(to, tokenAmount);
+    TransferHelper.safeTransfer(address(token), to, tokenAmount);
     CallExecutable(implementation()).callExecutor().proxyCall(to, data);
 
     require(address(this).balance.sub(ethBalance) >= ethAmount, "NOT_ENOUGH_RECEIVED");

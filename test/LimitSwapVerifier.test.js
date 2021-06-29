@@ -129,6 +129,25 @@ describe('LimitSwapVerifier', function() {
         ]
       ), numSignedParams)
 
+      this.insufficientBalanceCall = splitCallData(encodeFunctionCall(
+        'tokenToToken',
+        LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES.map(t => t.type),
+        [
+          BN(0), BN(1),
+          this.tokenA.address,
+          this.tokenB.address,
+          this.tokenASwapAmount.mul(2).toString(),
+          this.tokenBSwapAmount.toString(),
+          this.expiryBlock.toString(),
+          this.testFulfillSwap.address,
+          encodeFunctionCall(
+            'fulfillTokenOutSwap',
+            ['address', 'uint', 'address'],
+            [ this.tokenB.address, this.tokenBSwapAmount.toString(), this.metaAccount.address ]
+          )
+        ]
+      ), numSignedParams)
+
       this.expiredCall = splitCallData(encodeFunctionCall(
         'tokenToToken',
         LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES.map(t => t.type),
@@ -155,6 +174,10 @@ describe('LimitSwapVerifier', function() {
 
     it('when not enough token is received, should revert with NOT_ENOUGH_RECEIVED', async function () {
       await expect(this.partialSignedDelegateCall(this.notEnoughTokenCall)).to.be.revertedWith('NOT_ENOUGH_RECEIVED')
+    })
+
+    it('when account does not have enough tokenIn, should revert with TRANSFER_FAILED', async function () {
+      await expect(this.partialSignedDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
@@ -337,6 +360,24 @@ describe('LimitSwapVerifier', function() {
         ]
       ), numSignedParams)
 
+      this.insufficientBalanceCall = splitCallData(encodeFunctionCall(
+        'tokenToEth',
+        LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES.map(t => t.type),
+        [
+          BN(0), BN(1),
+          this.tokenA.address,
+          this.tokenASwapAmount.mul(2).toString(),
+          this.ethSwapAmount.toString(),
+          this.expiryBlock.toString(),
+          this.testFulfillSwap.address,
+          encodeFunctionCall(
+            'fulfillEthOutSwap',
+            ['uint', 'address'],
+            [ this.ethSwapAmount.toString(), this.metaAccount.address ]
+          )
+        ]
+      ), numSignedParams)
+
       this.expiredCall = splitCallData(encodeFunctionCall(
         'tokenToEth',
         LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES.map(t => t.type),
@@ -364,6 +405,10 @@ describe('LimitSwapVerifier', function() {
     it('when amount of ETH received is not enough, should revert with NOT_ENOUGH_RECEIVED', async function () {
       await expect(this.partialSignedDelegateCall(this.notEnoughReceivedCall))
         .to.be.revertedWith('NOT_ENOUGH_RECEIVED')
+    })
+
+    it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
+      await expect(this.partialSignedDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
