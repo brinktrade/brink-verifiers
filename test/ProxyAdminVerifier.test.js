@@ -1,10 +1,11 @@
 const { ethers } = require('hardhat')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
+const brinkUtils = require('@brinkninja/utils')
+const { encodeFunctionCall } = brinkUtils 
 const {
   randomAddress,
-  encodeFunctionCall,
   chaiSolidity
-} = require('@brinkninja/test-helpers')
+} = brinkUtils.test
 const { expect } = chaiSolidity()
 
 describe('ProxyAdminVerifier', function() {
@@ -16,7 +17,7 @@ describe('ProxyAdminVerifier', function() {
     this.random = await randomAddress()
 
     const MockAccount = await ethers.getContractFactory('MockAccount')
-    this.upgradeToAccount = await MockAccount.deploy(this.random.address, this.random.address)
+    this.upgradeToAccount = await MockAccount.deploy(this.random.address)
 
     const ProxyAdminVerifier = await ethers.getContractFactory('ProxyAdminVerifier')
     this.proxyAdminVerifier = await ProxyAdminVerifier.deploy()
