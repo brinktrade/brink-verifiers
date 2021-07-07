@@ -1,10 +1,11 @@
 const { ethers } = require('hardhat')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
+const brinkUtils = require('@brinkninja/utils')
+const { encodeFunctionCall } = brinkUtils 
 const {
   randomAddress,
-  encodeFunctionCall,
   chaiSolidity
-} = require('@brinkninja/test-helpers')
+} = brinkUtils.test
 const { expect } = chaiSolidity()
 
 describe('ProxyAdminVerifier', function() {
