@@ -75,6 +75,7 @@ contract LimitSwapVerifier is ProxyGettable {
   /// @param bit The value of the replay bit [signed]
   /// @param token The input token provided for the swap [signed]
   /// @param tokenAmount Amount of tokenIn provided [signed]
+  /// @param ethAmount Amount of ETH to receive [signed]
   /// @param expiryBlock The block when the swap expires [signed]
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
