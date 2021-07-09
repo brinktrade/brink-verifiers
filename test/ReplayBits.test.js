@@ -1,9 +1,7 @@
 const { ethers } = require('hardhat')
-const {
-  chaiSolidity,
-  bnToBinaryString,
-  BN
-} = require('@brinkninja/test-helpers')
+const brinkUtils = require('@brinkninja/utils')
+const { bnToBinaryString } = brinkUtils
+const { chaiSolidity, BN } = brinkUtils.test
 const { expect } = chaiSolidity()
 
 describe('ReplayBits', function () {
