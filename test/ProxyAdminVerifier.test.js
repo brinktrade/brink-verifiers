@@ -37,10 +37,6 @@ describe('ProxyAdminVerifier', function() {
       await this.promise
       expect(await this.metaAccount.implementation()).to.equal(this.upgradeToAccount.address)
     })
-    it('should emit an Upgraded event', async function () {
-      await expect(this.promise)
-        .to.emit(this.metaAccountAsProxyAdmin, 'Upgraded').withArgs(this.upgradeToAccount.address)
-    })
   })
 
   describe('setOwner()', function () {
@@ -53,10 +49,6 @@ describe('ProxyAdminVerifier', function() {
     it('should set the proxy owner address', async function () {
       await this.promise
       expect(await this.metaAccount.proxyOwner()).to.equal(this.random.address)
-    })
-    it('should emit an Upgraded event', async function () {
-      await expect(this.promise)
-        .to.emit(this.metaAccountAsProxyAdmin, 'ProxyOwnerChanged').withArgs(this.random.address)
     })
   })
 

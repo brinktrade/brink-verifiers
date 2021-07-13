@@ -5,8 +5,6 @@ pragma solidity >=0.7.6;
 /// @title Cancel Verifier for direct transactions
 contract CancelVerifier {
 
-  event Cancelled (uint256 bitmapIndex, uint256 bit);
-
   /// Cancel, which will flip the bit so that it cannot be used
   /// @param bitmapIndex the bitmap index
   /// @param bit the bit to flip 
@@ -31,8 +29,6 @@ contract CancelVerifier {
     assembly {
       sstore(replayProtectionPtr, newBitmap)
     }
-
-    emit Cancelled(bitmapIndex, bit);
   }
 
   /**
