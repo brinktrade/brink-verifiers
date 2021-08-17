@@ -1,12 +1,12 @@
 const { ethers } = require('hardhat')
+const { expect } = require('chai')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
 const { encodeFunctionCall } = brinkUtils 
-const {
-  randomAddress,
-  chaiSolidity
-} = brinkUtils.test
-const { expect } = chaiSolidity()
+const { randomAddress } = brinkUtils.testHelpers(ethers)
+const snapshotGas = require('./helpers/snapshotGas')
+
+const chainId = 1
 
 describe('ProxyAdminVerifier', function() {
   beforeEach(async function () {
@@ -17,7 +17,7 @@ describe('ProxyAdminVerifier', function() {
     this.random = await randomAddress()
 
     const MockAccount = await ethers.getContractFactory('MockAccount')
-    this.upgradeToAccount = await MockAccount.deploy(this.random.address)
+    this.upgradeToAccount = await MockAccount.deploy(chainId)
 
     const ProxyAdminVerifier = await ethers.getContractFactory('ProxyAdminVerifier')
     this.proxyAdminVerifier = await ProxyAdminVerifier.deploy()
@@ -41,6 +41,9 @@ describe('ProxyAdminVerifier', function() {
       await expect(this.promise)
         .to.emit(this.metaAccountAsProxyAdmin, 'Upgraded').withArgs(this.upgradeToAccount.address)
     })
+    it('gas cost', async function () {
+      await snapshotGas(this.promise)
+    })
   })
 
   describe('setOwner()', function () {
@@ -57,6 +60,9 @@ describe('ProxyAdminVerifier', function() {
     it('should emit an Upgraded event', async function () {
       await expect(this.promise)
         .to.emit(this.metaAccountAsProxyAdmin, 'ProxyOwnerChanged').withArgs(this.random.address)
+    })
+    it('gas cost', async function () {
+      await snapshotGas(this.promise)
     })
   })
 

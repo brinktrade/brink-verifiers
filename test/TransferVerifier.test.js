@@ -1,14 +1,11 @@
 const { ethers } = require('hardhat')
+const { expect } = require('chai')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
-const { encodeFunctionCall } = brinkUtils
-const { 
-  BN, 
-  BN18,
-  execMetaTx,
-  chaiSolidity
-} = brinkUtils.test
-const { expect } = chaiSolidity()
+const { BN, encodeFunctionCall } = brinkUtils
+const { BN18 } = brinkUtils.constants
+const { execMetaTx } = brinkUtils.testHelpers(ethers)
+const snapshotGas = require('./helpers/snapshotGas')
 
 const ETH_TRANSFER_PARAM_TYPES = [
   { name: 'bitmapIndex', type: 'uint256' },
@@ -97,6 +94,11 @@ describe('TransferVerifier', function() {
     it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
       await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('TRANSFER_FAILED')
     })
+
+    it('gas cost', async function () {
+      const { tx } = await this.signedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
+    })
   })
 
   describe('ethTransfer()', function () {
@@ -144,6 +146,11 @@ describe('TransferVerifier', function() {
 
     it('when account does not have enough token, should revert with ETH_TRANSFER_FAILED', async function () {
       await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('ETH_TRANSFER_FAILED')
+    })
+
+    it('gas cost', async function () {
+      const { tx } = await this.signedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
     })
   })
 })

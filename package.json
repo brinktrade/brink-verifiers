@@ -2,7 +2,7 @@
   "name": "@brinkninja/verifiers",
   "version": "0.1.2",
   "dependencies": {
-    "@brinkninja/core": "^0.1.0"
+    "@brinkninja/core": "^0.3.0"
   },
   "scripts": {
     "compile": "hardhat compile",
@@ -14,10 +14,12 @@
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@brinkninja/range-orders": "^0.2.0",
-    "@brinkninja/utils": "^0.1.1",
+    "@brinkninja/utils": "^0.3.0",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.1.2",
-    "moment": "^2.29.1"
+    "moment": "^2.29.1",
+    "snap-shot-it": "^7.9.6"
   },
   "main": "index.js",
   "directories": {

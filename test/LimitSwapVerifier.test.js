@@ -1,15 +1,11 @@
 const { ethers } = require('hardhat')
+const { expect } = require('chai')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
-const { encodeFunctionCall } = brinkUtils
-const { 
-  BN, 
-  BN18,
-  splitCallData,
-  execMetaTx,
-  chaiSolidity
-} = brinkUtils.test
-const { expect } = chaiSolidity()
+const { BN, encodeFunctionCall, splitCallData } = brinkUtils
+const { BN18 } = brinkUtils.constants
+const { execMetaTx } = brinkUtils.testHelpers(ethers)
+const snapshotGas = require('./helpers/snapshotGas')
 
 const LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES = [
   { name: 'bitmapIndex', type: 'uint256' },
@@ -48,13 +44,15 @@ const LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES = [
 describe('LimitSwapVerifier', function() {
   beforeEach(async function () {
     const TestFulfillSwap = await ethers.getContractFactory('TestFulfillSwap')
+    const CallExecutor = await ethers.getContractFactory('CallExecutor')
     const LimitSwapVerifier = await ethers.getContractFactory('LimitSwapVerifier')
     const TestERC20 = await ethers.getContractFactory('TestERC20')
     const tokenA = await TestERC20.deploy('Token A', 'TKNA', 18)
     const tokenB = await TestERC20.deploy('Token B', 'TKNB', 18)
     const { metaAccount } = await setupMetaAccount()
+    const callExecutor = await CallExecutor.deploy()
     this.testFulfillSwap = await TestFulfillSwap.deploy()
-    this.limitSwapVerifier = await LimitSwapVerifier.deploy()
+    this.limitSwapVerifier = await LimitSwapVerifier.deploy(callExecutor.address)
     this.metaAccount = metaAccount
     
     const { defaultAccount, metaAccountOwner } = await getSigners()
@@ -189,6 +187,11 @@ describe('LimitSwapVerifier', function() {
       await this.partialSignedDelegateCall(this.successCall)
       await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
+
+    it('gas cost', async function () {
+      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
+    })
   })
 
   describe('ethToToken()', function () {
@@ -303,6 +306,11 @@ describe('LimitSwapVerifier', function() {
     it('when swap is replayed, should revert with BIT_USED', async function () {
       await this.partialSignedDelegateCall(this.successCall)
       await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+    })
+
+    it('gas cost', async function () {
+      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
     })
   })
 
@@ -419,6 +427,11 @@ describe('LimitSwapVerifier', function() {
     it('when swap is replayed, should revert with BIT_USED', async function () {
       await this.partialSignedDelegateCall(this.successCall)
       await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+    })
+
+    it('gas cost', async function () {
+      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
     })
   })
 })

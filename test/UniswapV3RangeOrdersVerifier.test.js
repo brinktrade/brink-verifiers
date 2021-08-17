@@ -3,14 +3,9 @@ const { ethers } = require('hardhat')
 const { soliditySha3 } = require('web3-utils')
 const { setupMetaAccount } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
-const { 
-  BN,
-  BN17,
-  BN18,
-  nextAvailableBit,
-  signMetaTx,
-  deployTestTokens
-} = brinkUtils.test
+const { BN } = brinkUtils
+const { BN17, BN18 } = brinkUtils.constants
+const { nextAvailableBit, signMetaTx, deployTestTokens } = brinkUtils.testHelpers(ethers)
 
 const weth9Contract = require('./weth9/weth9Contract')
 
