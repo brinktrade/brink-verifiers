@@ -1,8 +1,6 @@
 const { ethers } = require('hardhat')
-const brinkUtils = require('@brinkninja/utils')
-const { bnToBinaryString } = brinkUtils
-const { chaiSolidity, BN } = brinkUtils.test
-const { expect } = chaiSolidity()
+const { expect } = require('chai')
+const { BN, bnToBinaryString } = require('@brinkninja/utils')
 
 describe('ReplayBits', function () {
   beforeEach(async function () {

@@ -1,14 +1,10 @@
 const { ethers } = require('hardhat')
+const { expect } = require('chai')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
-const { encodeFunctionCall } = brinkUtils
-const { 
-  BN, 
-  BN18,
-  execMetaTx,
-  chaiSolidity
-} = brinkUtils.test
-const { expect } = chaiSolidity()
+const { BN, encodeFunctionCall } = brinkUtils
+const { BN18 } = brinkUtils.constants
+const { execMetaTx } = brinkUtils.testHelpers(ethers)
 
 const ETH_TRANSFER_PARAM_TYPES = [
   { name: 'bitmapIndex', type: 'uint256' },

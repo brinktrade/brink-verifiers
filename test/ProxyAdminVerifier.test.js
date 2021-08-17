@@ -1,12 +1,9 @@
 const { ethers } = require('hardhat')
+const { expect } = require('chai')
 const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
 const { encodeFunctionCall } = brinkUtils 
-const {
-  randomAddress,
-  chaiSolidity
-} = brinkUtils.test
-const { expect } = chaiSolidity()
+const { randomAddress } = brinkUtils.testHelpers(ethers)
 
 const chainId = 1
 
