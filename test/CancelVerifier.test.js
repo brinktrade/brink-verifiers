@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require('hardhat')
+const snapshotGas = require('./helpers/snapshotGas')
 
 describe("CancelVerifier", function() {
   beforeEach(async function () {
@@ -38,4 +39,10 @@ describe("CancelVerifier", function() {
     await expect(cancelVerifier.cancel(0, 3))
       .to.be.revertedWith('CancelVerifier: bit must be a single bit')
   })
+
+  it("gas cost", async function() {
+    const CancelVerifier = await ethers.getContractFactory("CancelVerifier");
+    const cancelVerifier = await CancelVerifier.deploy()
+    await snapshotGas(cancelVerifier.cancel(0, 1))
+  });
 })

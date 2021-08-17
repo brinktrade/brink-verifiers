@@ -5,6 +5,7 @@ const brinkUtils = require('@brinkninja/utils')
 const { BN, encodeFunctionCall, splitCallData } = brinkUtils
 const { BN18 } = brinkUtils.constants
 const { execMetaTx } = brinkUtils.testHelpers(ethers)
+const snapshotGas = require('./helpers/snapshotGas')
 
 const LIMIT_SWAP_TOKEN_TO_TOKEN_PARAM_TYPES = [
   { name: 'bitmapIndex', type: 'uint256' },
@@ -184,6 +185,11 @@ describe('LimitSwapVerifier', function() {
       await this.partialSignedDelegateCall(this.successCall)
       await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
+
+    it('gas cost', async function () {
+      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
+    })
   })
 
   describe('ethToToken()', function () {
@@ -298,6 +304,11 @@ describe('LimitSwapVerifier', function() {
     it('when swap is replayed, should revert with BIT_USED', async function () {
       await this.partialSignedDelegateCall(this.successCall)
       await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+    })
+
+    it('gas cost', async function () {
+      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
     })
   })
 
@@ -414,6 +425,11 @@ describe('LimitSwapVerifier', function() {
     it('when swap is replayed, should revert with BIT_USED', async function () {
       await this.partialSignedDelegateCall(this.successCall)
       await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+    })
+
+    it('gas cost', async function () {
+      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      await snapshotGas(new Promise(r => r(tx)))
     })
   })
 })

@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat')
 const { expect } = require('chai')
 const { BN, bnToBinaryString } = require('@brinkninja/utils')
+const snapshotGas = require('./helpers/snapshotGas')
 
 describe('ReplayBits', function () {
   beforeEach(async function () {
@@ -34,6 +35,10 @@ describe('ReplayBits', function () {
     it('when bit is used, should revert with BIT_USED', async function () {
       await this.replayBits.useBit(BN(1), BN(4)) // slot 1, index 2 : 2**2 = 4
       await expect(this.replayBits.useBit(BN(1), BN(4))).to.be.revertedWith('BIT_USED')
+    })
+
+    it('gas cost', async function () {
+      await snapshotGas(this.replayBits.useBit(BN(1), BN(4)))
     })
   })
 
