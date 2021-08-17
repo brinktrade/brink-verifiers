@@ -17,7 +17,7 @@ describe('ProxyAdminVerifier', function() {
     this.random = await randomAddress()
 
     const MockAccount = await ethers.getContractFactory('MockAccount')
-    this.upgradeToAccount = await MockAccount.deploy(this.random.address, chainId)
+    this.upgradeToAccount = await MockAccount.deploy(chainId)
 
     const ProxyAdminVerifier = await ethers.getContractFactory('ProxyAdminVerifier')
     this.proxyAdminVerifier = await ProxyAdminVerifier.deploy()

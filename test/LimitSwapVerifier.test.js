@@ -44,13 +44,15 @@ const LIMIT_SWAP_TOKEN_TO_ETH_PARAM_TYPES = [
 describe('LimitSwapVerifier', function() {
   beforeEach(async function () {
     const TestFulfillSwap = await ethers.getContractFactory('TestFulfillSwap')
+    const CallExecutor = await ethers.getContractFactory('CallExecutor')
     const LimitSwapVerifier = await ethers.getContractFactory('LimitSwapVerifier')
     const TestERC20 = await ethers.getContractFactory('TestERC20')
     const tokenA = await TestERC20.deploy('Token A', 'TKNA', 18)
     const tokenB = await TestERC20.deploy('Token B', 'TKNB', 18)
     const { metaAccount } = await setupMetaAccount()
+    const callExecutor = await CallExecutor.deploy()
     this.testFulfillSwap = await TestFulfillSwap.deploy()
-    this.limitSwapVerifier = await LimitSwapVerifier.deploy()
+    this.limitSwapVerifier = await LimitSwapVerifier.deploy(callExecutor.address)
     this.metaAccount = metaAccount
     
     const { defaultAccount, metaAccountOwner } = await getSigners()

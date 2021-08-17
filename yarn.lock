@@ -10,10 +10,10 @@
     check-more-types "2.24.0"
     lazy-ass "1.6.0"
 
-"@brinkninja/core@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@brinkninja/core/-/core-0.2.0.tgz#55a6de7fd35ef14604a3341085c11db6610bf371"
-  integrity sha512-V252KTqQF5bU2UNMHO7tg59UGOAH/I1noZeNXnMDqKko4kEswFNttA9C9D1fToNT5R81o5oebnRL+9hmb4MuKQ==
+"@brinkninja/core@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@brinkninja/core/-/core-0.3.0.tgz#d9c436ee3f0d704409d2addf4063bcb7a0b7a9b6"
+  integrity sha512-+fK4Z20PxesaeotPqzr0upMWnBv7jCCCGBbCPlKAKYXsNyd11OoD7WnmIj6TOyPPjivwX5X69Orf4Un9GBbwaQ==
   dependencies:
     "@openzeppelin/contracts" "3.4.1-solc-0.7-2"
     require-directory "^2.1.1"

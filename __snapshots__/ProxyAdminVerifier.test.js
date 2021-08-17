@@ -1,3 +1,3 @@
-exports['ProxyAdminVerifier upgradeTo() gas cost 1'] = 36998
+exports['ProxyAdminVerifier upgradeTo() gas cost 1'] = 36975
 
-exports['ProxyAdminVerifier setOwner() gas cost 1'] = 36953
+exports['ProxyAdminVerifier setOwner() gas cost 1'] = 36930

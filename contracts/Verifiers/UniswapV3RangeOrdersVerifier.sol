@@ -3,13 +3,19 @@ pragma solidity >=0.7.6;
 
 import "@brinkninja/range-orders/contracts/interfaces/IRangeOrderPositionManager.sol";
 import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
-import "@brinkninja/core/contracts/Called/CallExecutable.sol";
+import "../External/CallExecutor.sol";
 import '../Libraries/TransferHelper.sol';
 
 /**
  * @dev Contains verifier functions for relayed interactions with the RangeOrderPositionManager contract
  */
-contract UniswapV3RangeOrdersVerifier is ProxyGettable {
+contract UniswapV3RangeOrdersVerifier {
+
+  CallExecutor internal immutable CALL_EXECUTOR;
+
+  constructor(CallExecutor callExecutor) {
+    CALL_EXECUTOR = callExecutor;
+  }
 
   function createRangeOrder(
     IRangeOrderPositionManager rangeOrderPositionManager, bytes32 positionHash, address tokenIn, uint256 tokenInAmount, uint128 liquidityOutAmount, uint256 expiryBlock, address transferTo, address executeTo, bytes memory data
@@ -26,7 +32,7 @@ contract UniswapV3RangeOrdersVerifier is ProxyGettable {
     TransferHelper.safeTransfer(tokenIn, transferTo, tokenInAmount);
 
     // execute call data on the CallExecutor contract
-    CallExecutable(implementation()).callExecutor().proxyCall(executeTo, data);
+    CALL_EXECUTOR.proxyCall(executeTo, data);
 
     // calculate amount of liquidity added for this contract
     uint128 liquidityOutReceived = rangeOrderPositionManager.liquidityBalances(positionHash, positionIndex, address(this)) - liquidityBalance;
@@ -50,7 +56,7 @@ contract UniswapV3RangeOrdersVerifier is ProxyGettable {
     TransferHelper.safeTransferETH(transferTo, ethInAmount);
 
     // execute call data on the CallExecutor contract
-    CallExecutable(implementation()).callExecutor().proxyCall(executeTo, data);
+    CALL_EXECUTOR.proxyCall(executeTo, data);
 
     // calculate amount of liquidity added for this contract
     uint128 liquidityOutReceived = rangeOrderPositionManager.liquidityBalances(positionHash, positionIndex, address(this)) - liquidityBalance;

@@ -3,15 +3,20 @@ pragma solidity >=0.7.6;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@brinkninja/core/contracts/Proxy/ProxyGettable.sol";
-import "@brinkninja/core/contracts/Called/CallExecutable.sol";
+import "../External/CallExecutor.sol";
 import "../Libraries/ReplayBits.sol";
 import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ERC20 limit swaps
 /// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
-contract LimitSwapVerifier is ProxyGettable {
+contract LimitSwapVerifier {
   using SafeMath for uint256;
+
+  CallExecutor internal immutable CALL_EXECUTOR;
+
+  constructor(CallExecutor callExecutor) {
+    CALL_EXECUTOR = callExecutor;
+  }
 
   /// @dev Executes an ERC20 to ERC20 limit swap
   /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
@@ -36,7 +41,7 @@ contract LimitSwapVerifier is ProxyGettable {
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
     TransferHelper.safeTransfer(address(tokenIn), to, tokenInAmount);
-    CallExecutable(implementation()).callExecutor().proxyCall(to, data);
+    CALL_EXECUTOR.proxyCall(to, data);
 
     require(tokenOut.balanceOf(address(this)).sub(tokenOutBalance) >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
   }
@@ -64,7 +69,7 @@ contract LimitSwapVerifier is ProxyGettable {
 
     uint256 tokenBalance = token.balanceOf(address(this));
 
-    CallExecutable(implementation()).callExecutor().proxyPayableCall{value: ethAmount}(to, data);
+    CALL_EXECUTOR.proxyPayableCall{value: ethAmount}(to, data);
 
     require(token.balanceOf(address(this)).sub(tokenBalance) >= tokenAmount, "NOT_ENOUGH_RECEIVED");
   }
@@ -92,7 +97,7 @@ contract LimitSwapVerifier is ProxyGettable {
     uint256 ethBalance = address(this).balance;
 
     TransferHelper.safeTransfer(address(token), to, tokenAmount);
-    CallExecutable(implementation()).callExecutor().proxyCall(to, data);
+    CALL_EXECUTOR.proxyCall(to, data);
 
     require(address(this).balance.sub(ethBalance) >= ethAmount, "NOT_ENOUGH_RECEIVED");
   }
