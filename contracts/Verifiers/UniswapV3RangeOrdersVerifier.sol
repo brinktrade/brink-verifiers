@@ -26,7 +26,7 @@ contract UniswapV3RangeOrdersVerifier is ProxyGettable {
     TransferHelper.safeTransfer(tokenIn, transferTo, tokenInAmount);
 
     // execute call data on the CallExecutor contract
-    CallExecutable(_implementation()).callExecutor().proxyCall(executeTo, data);
+    CallExecutable(implementation()).callExecutor().proxyCall(executeTo, data);
 
     // calculate amount of liquidity added for this contract
     uint128 liquidityOutReceived = rangeOrderPositionManager.liquidityBalances(positionHash, positionIndex, address(this)) - liquidityBalance;
@@ -50,7 +50,7 @@ contract UniswapV3RangeOrdersVerifier is ProxyGettable {
     TransferHelper.safeTransferETH(transferTo, ethInAmount);
 
     // execute call data on the CallExecutor contract
-    CallExecutable(_implementation()).callExecutor().proxyCall(executeTo, data);
+    CallExecutable(implementation()).callExecutor().proxyCall(executeTo, data);
 
     // calculate amount of liquidity added for this contract
     uint128 liquidityOutReceived = rangeOrderPositionManager.liquidityBalances(positionHash, positionIndex, address(this)) - liquidityBalance;

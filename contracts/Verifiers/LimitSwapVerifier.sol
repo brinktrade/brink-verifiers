@@ -36,7 +36,7 @@ contract LimitSwapVerifier is ProxyGettable {
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
     TransferHelper.safeTransfer(address(tokenIn), to, tokenInAmount);
-    CallExecutable(_implementation()).callExecutor().proxyCall(to, data);
+    CallExecutable(implementation()).callExecutor().proxyCall(to, data);
 
     require(tokenOut.balanceOf(address(this)).sub(tokenOutBalance) >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
   }

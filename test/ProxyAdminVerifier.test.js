@@ -8,6 +8,8 @@ const {
 } = brinkUtils.test
 const { expect } = chaiSolidity()
 
+const chainId = 1
+
 describe('ProxyAdminVerifier', function() {
   beforeEach(async function () {
 
@@ -17,7 +19,7 @@ describe('ProxyAdminVerifier', function() {
     this.random = await randomAddress()
 
     const MockAccount = await ethers.getContractFactory('MockAccount')
-    this.upgradeToAccount = await MockAccount.deploy(this.random.address)
+    this.upgradeToAccount = await MockAccount.deploy(this.random.address, chainId)
 
     const ProxyAdminVerifier = await ethers.getContractFactory('ProxyAdminVerifier')
     this.proxyAdminVerifier = await ProxyAdminVerifier.deploy()

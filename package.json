@@ -2,7 +2,7 @@
   "name": "@brinkninja/verifiers",
   "version": "0.1.2",
   "dependencies": {
-    "@brinkninja/core": "^0.1.0"
+    "@brinkninja/core": "^0.2.0"
   },
   "scripts": {
     "compile": "hardhat compile",
@@ -17,7 +17,8 @@
     "@brinkninja/utils": "^0.1.1",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "hardhat": "^2.1.2",
-    "moment": "^2.29.1"
+    "moment": "^2.29.1",
+    "snap-shot-it": "^7.9.6"
   },
   "main": "index.js",
   "directories": {
