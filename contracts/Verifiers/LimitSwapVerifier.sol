@@ -30,7 +30,8 @@ contract LimitSwapVerifier {
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToToken(
-    uint256 bitmapIndex, uint256 bit, IERC20 tokenIn, IERC20 tokenOut, uint256 tokenInAmount, uint256 tokenOutAmount, uint256 expiryBlock, address to, bytes memory data
+    uint256 bitmapIndex, uint256 bit, IERC20 tokenIn, IERC20 tokenOut, uint256 tokenInAmount, uint256 tokenOutAmount,
+    uint256 expiryBlock, address to, bytes memory data
   )
     external
   {
