@@ -46,7 +46,8 @@ describe('TransferVerifier', function() {
       params: [
         this.transferVerifier.address,
         signedData
-      ]
+      ],
+      unsignedData: '0x'
     })
 
     this.latestBlock = BN(await ethers.provider.getBlockNumber())

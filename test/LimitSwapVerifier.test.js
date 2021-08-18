@@ -61,11 +61,11 @@ describe('LimitSwapVerifier', function() {
     this.tokenA = tokenA
     this.tokenB = tokenB
 
-    this.partialSignedDelegateCall = ({ signedData, unsignedData }) => {
+    this.metaDelegateCall = ({ signedData, unsignedData }) => {
       return execMetaTx({
         ...{
           contract: this.metaAccount,
-          method: 'metaPartialSignedDelegateCall',
+          method: 'metaDelegateCall',
           signer: this.metaAccountOwner
         },
         params: [
@@ -164,7 +164,7 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when call is valid, should execute the swap', async function () {
-      await this.partialSignedDelegateCall(this.successCall)
+      await this.metaDelegateCall(this.successCall)
       expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(BN(0))
       expect(await this.tokenB.balanceOf(this.metaAccount.address)).to.equal(this.tokenBSwapAmount)
       expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
@@ -172,24 +172,24 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when not enough token is received, should revert with NOT_ENOUGH_RECEIVED', async function () {
-      await expect(this.partialSignedDelegateCall(this.notEnoughTokenCall)).to.be.revertedWith('NOT_ENOUGH_RECEIVED')
+      await expect(this.metaDelegateCall(this.notEnoughTokenCall)).to.be.revertedWith('NOT_ENOUGH_RECEIVED')
     })
 
     it('when account does not have enough tokenIn, should revert with TRANSFER_FAILED', async function () {
-      await expect(this.partialSignedDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
+      await expect(this.metaDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.partialSignedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+      await expect(this.metaDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
     })
 
     it('when swap is replayed, should revert with BIT_USED', async function () {
-      await this.partialSignedDelegateCall(this.successCall)
-      await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+      await this.metaDelegateCall(this.successCall)
+      await expect(this.metaDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
 
     it('gas cost', async function () {
-      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      const { tx } = await this.metaDelegateCall(this.successCall)
       await snapshotGas(new Promise(r => r(tx)))
     })
   })
@@ -282,7 +282,7 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when given a valid ethToToken call, should execute the swap', async function () {
-      await this.partialSignedDelegateCall(this.successCall)
+      await this.metaDelegateCall(this.successCall)
       expect(BN(await ethers.provider.getBalance(this.metaAccount.address)))
         .to.equal(this.metaAccountInitialEthBalance.sub(this.ethSwapAmount))
       expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(this.tokenASwapAmount)
@@ -291,25 +291,25 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when account does not have enough ETH, should revert', async function () {
-      await expect(this.partialSignedDelegateCall(this.notEnoughBalanceCall)).to.be.revertedWith('NOT_ENOUGH_ETH')
+      await expect(this.metaDelegateCall(this.notEnoughBalanceCall)).to.be.revertedWith('NOT_ENOUGH_ETH')
     })
 
     it('when not enough token is received, should revert with NOT_ENOUGH_RECEIVED', async function () {
-      await expect(this.partialSignedDelegateCall(this.notEnoughReceivedCall))
+      await expect(this.metaDelegateCall(this.notEnoughReceivedCall))
         .to.be.revertedWith('NOT_ENOUGH_RECEIVED')
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.partialSignedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+      await expect(this.metaDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
     })
 
     it('when swap is replayed, should revert with BIT_USED', async function () {
-      await this.partialSignedDelegateCall(this.successCall)
-      await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+      await this.metaDelegateCall(this.successCall)
+      await expect(this.metaDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
 
     it('gas cost', async function () {
-      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      const { tx } = await this.metaDelegateCall(this.successCall)
       await snapshotGas(new Promise(r => r(tx)))
     })
   })
@@ -327,7 +327,7 @@ describe('LimitSwapVerifier', function() {
 
       this.tokenToEthExecArgs = {
         contract: this.metaAccount,
-        method: 'metaPartialSignedDelegateCall',
+        method: 'metametaDelegateCall',
         signer: this.metaAccountOwner
       }
 
@@ -404,7 +404,7 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when given a valid tokenToEth call, should execute the swap', async function () {
-      await this.partialSignedDelegateCall(this.successCall) 
+      await this.metaDelegateCall(this.successCall) 
       expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(BN(0))
       expect(BN(await ethers.provider.getBalance(this.metaAccount.address))).to.equal(this.ethSwapAmount)
       expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
@@ -412,25 +412,25 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when amount of ETH received is not enough, should revert with NOT_ENOUGH_RECEIVED', async function () {
-      await expect(this.partialSignedDelegateCall(this.notEnoughReceivedCall))
+      await expect(this.metaDelegateCall(this.notEnoughReceivedCall))
         .to.be.revertedWith('NOT_ENOUGH_RECEIVED')
     })
 
     it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
-      await expect(this.partialSignedDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
+      await expect(this.metaDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.partialSignedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+      await expect(this.metaDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
     })
 
     it('when swap is replayed, should revert with BIT_USED', async function () {
-      await this.partialSignedDelegateCall(this.successCall)
-      await expect(this.partialSignedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+      await this.metaDelegateCall(this.successCall)
+      await expect(this.metaDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
     })
 
     it('gas cost', async function () {
-      const { tx } = await this.partialSignedDelegateCall(this.successCall)
+      const { tx } = await this.metaDelegateCall(this.successCall)
       await snapshotGas(new Promise(r => r(tx)))
     })
   })

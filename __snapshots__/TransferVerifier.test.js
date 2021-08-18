@@ -1,3 +1,3 @@
-exports['TransferVerifier tokenTransfer() gas cost 1'] = 93825
+exports['TransferVerifier tokenTransfer() gas cost 1'] = 95356
 
-exports['TransferVerifier ethTransfer() gas cost 1'] = 72378
+exports['TransferVerifier ethTransfer() gas cost 1'] = 73835
