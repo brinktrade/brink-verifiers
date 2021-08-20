@@ -6,8 +6,7 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test",
-    "benchmark": "mocha benchmark --exit --recursive --file ./benchmark/setupTeardown.js --timeout 600000"
+    "test": "hardhat test"
   },
   "description": "Verifier contracts for Brink",
   "author": "@mikec & @kyrrui",
