@@ -1,22 +1,16 @@
 ## `CancelVerifier`
 
+Uses the ReplayBits library to use the bit, which invalidates messages signed with the same bit
 
 
 
 
-
-### `cancel(uint256 bitmapIndex, uint256 bit)` (public)
-
-Cancel, which will flip the bit so that it cannot be used
+### `cancel(uint256 bitmapIndex, uint256 bit)` (external)
 
 
 
+Cancels existing messages signed with bitmapIndex and bit
 
-### `_getReplayProtectionPtr(uint256 bitmapIndex) → bytes32` (internal)
-
-
-
-Returns a storage pointer to the given `bitmapIndex`
 
 
 ### `Cancelled(uint256 bitmapIndex, uint256 bit)`

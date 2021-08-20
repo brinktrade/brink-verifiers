@@ -6,7 +6,8 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "docgen": "solidity-docgen --solc-module solc-0.7.6"
   },
   "description": "Verifier contracts for Brink",
   "author": "@mikec & @kyrrui",
@@ -18,7 +19,9 @@
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.1.2",
     "moment": "^2.29.1",
-    "snap-shot-it": "^7.9.6"
+    "snap-shot-it": "^7.9.6",
+    "solc-0.7.6": "npm:solc@0.7.6",
+    "solidity-docgen": "^0.5.13"
   },
   "main": "index.js",
   "directories": {

@@ -5,6 +5,12 @@ These functions should be executed by metaPartialSignedDelegateCall() on Brink a
 
 
 
+### `constructor(contract CallExecutor callExecutor)` (public)
+
+
+
+
+
 ### `tokenToToken(uint256 bitmapIndex, uint256 bit, contract IERC20 tokenIn, contract IERC20 tokenOut, uint256 tokenInAmount, uint256 tokenOutAmount, uint256 expiryBlock, address to, bytes data)` (external)
 
 This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
