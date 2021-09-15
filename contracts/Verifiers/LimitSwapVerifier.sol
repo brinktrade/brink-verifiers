@@ -8,7 +8,7 @@ import "../Libraries/ReplayBits.sol";
 import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ERC20 limit swaps
-/// @notice These functions should be executed by metaDelegateCall_EIP1271() on Brink account proxy contracts
+/// @notice These functions should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() on Brink account proxy contracts
 contract LimitSwapVerifier {
   using SafeMath for uint256;
 
