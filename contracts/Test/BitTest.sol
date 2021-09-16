@@ -3,7 +3,7 @@ pragma solidity ^0.7.6;
 
 import "../Libraries/Bit.sol";
 
-contract ReplayBitsTest {
+contract BitTest {
 
   function loadBitmap (uint256 bitmapIndex) external view returns (uint256) {
     bytes32 ptr = Bit.bitmapPtr(bitmapIndex);
