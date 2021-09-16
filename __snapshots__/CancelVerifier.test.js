@@ -1,1 +1,1 @@
-exports['CancelVerifier gas cost 1'] = 56901
+exports['CancelVerifier gas cost 1'] = 56531

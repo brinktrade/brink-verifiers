@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.7.6;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -8,7 +8,7 @@ import "../Libraries/Bit.sol";
 import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ERC20 limit swaps
-/// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
+/// @notice These functions should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() on Brink account proxy contracts
 contract LimitSwapVerifier {
   using SafeMath for uint256;
 
@@ -19,7 +19,7 @@ contract LimitSwapVerifier {
   }
 
   /// @dev Executes an ERC20 to ERC20 limit swap
-  /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
+  /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
   /// @param tokenIn The input token provided for the swap [signed]
@@ -48,7 +48,7 @@ contract LimitSwapVerifier {
   }
 
   /// @dev Executes an ETH to ERC20 limit swap
-  /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
+  /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
   /// @param token The output token required to be received from the swap [signed]
@@ -64,7 +64,6 @@ contract LimitSwapVerifier {
     external
   {
     require(expiryBlock > block.number, "EXPIRED");
-    require(address(this).balance >= ethAmount, "NOT_ENOUGH_ETH");
 
     Bit.useBit(bitmapIndex, bit);
 
@@ -76,7 +75,7 @@ contract LimitSwapVerifier {
   }
 
   /// @dev Executes an ERC20 to ETH limit swap
-  /// @notice This should be executed by metaPartialSignedDelegateCall() with the following signed and unsigned params
+  /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
   /// @param token The input token provided for the swap [signed]
