@@ -1,36 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.7.6;
+pragma solidity ^0.7.6;
 
 /// @title Bit replay protection library
 /// @notice Handles storage and loads for replay protection bits
 /// @dev Solution adapted from https://github.com/PISAresearch/metamask-comp/blob/77fa8295c168ee0b6bf801cbedab797d6f8cfd5d/src/contracts/BitFlipMetaTransaction/README.md
 /// @dev This is a gas optimized technique that stores up to 256 replay protection bits per bytes32 slot
 library ReplayBits {
-  /// @dev Returns a boolean indicating if a bit is used
-  /// @dev Value of bit cannot be zero and must represent a single bit
-  /// @param bitmapIndex The index of the uint256 bitmap
-  /// @param bit The value of the bit within the uint256 bitmap
-  /// @return used Whether the bit within the uint256 bitmap at bitmapIndex has been used
-  function bitUsed(uint256 bitmapIndex, uint256 bit) internal view returns (bool used) {
-    require(validBit(bit), "INVALID_BIT");
-    used = loadUint(bitmapPtr(bitmapIndex)) & bit != 0;
-  }
-
-  /// @dev Returns a uint256 bitmap
-  /// @param bitmapIndex The index of the uint256 bitmap
-  /// @return bitmap The uint256 bitmap at bitmapIndex
-  function loadBitmap (uint256 bitmapIndex) internal view returns (uint256 bitmap) {
-    bitmap = loadUint(bitmapPtr(bitmapIndex));
-  }
 
   /// @dev Adds a bit to the uint256 bitmap at bitmapIndex
   /// @dev Value of bit cannot be zero and must represent a single bit
   /// @param bitmapIndex The index of the uint256 bitmap
   /// @param bit The value of the bit within the uint256 bitmap
   function useBit(uint256 bitmapIndex, uint256 bit) internal {
-    require(!bitUsed(bitmapIndex, bit), "BIT_USED");
+    require(validBit(bit), "INVALID_BIT");
     bytes32 ptr = bitmapPtr(bitmapIndex);
-    uint256 updatedBitmap = loadUint(ptr) | bit;
+    uint256 bitmap = loadUint(ptr);
+    bool bitUsed = bitmap & bit != 0;
+    require(!bitUsed, "BIT_USED");
+    uint256 updatedBitmap = bitmap | bit;
     assembly { sstore(ptr, updatedBitmap) }
   }
 
