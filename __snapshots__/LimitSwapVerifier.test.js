@@ -1,5 +1,5 @@
-exports['LimitSwapVerifier tokenToToken() gas cost 1'] = 117127
+exports['LimitSwapVerifier tokenToToken() gas cost 1'] = 116757
 
-exports['LimitSwapVerifier ethToToken() gas cost 1'] = 109484
+exports['LimitSwapVerifier ethToToken() gas cost 1'] = 109114
 
-exports['LimitSwapVerifier tokenToEth gas cost 1'] = 101213
+exports['LimitSwapVerifier tokenToEth gas cost 1'] = 100842
