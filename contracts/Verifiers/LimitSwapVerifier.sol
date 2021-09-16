@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.7.6;
+pragma solidity ^0.7.6;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -64,7 +64,6 @@ contract LimitSwapVerifier {
     external
   {
     require(expiryBlock > block.number, "EXPIRED");
-    require(address(this).balance >= ethAmount, "NOT_ENOUGH_ETH");
 
     ReplayBits.useBit(bitmapIndex, bit);
 

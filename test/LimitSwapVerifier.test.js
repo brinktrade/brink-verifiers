@@ -291,7 +291,7 @@ describe('LimitSwapVerifier', function() {
     })
 
     it('when account does not have enough ETH, should revert', async function () {
-      await expect(this.metaDelegateCall(this.notEnoughBalanceCall)).to.be.revertedWith('NOT_ENOUGH_ETH')
+      await expect(this.metaDelegateCall(this.notEnoughBalanceCall)).to.be.reverted
     })
 
     it('when not enough token is received, should revert with NOT_ENOUGH_RECEIVED', async function () {
