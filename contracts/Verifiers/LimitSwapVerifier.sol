@@ -19,7 +19,7 @@ contract LimitSwapVerifier {
   }
 
   /// @dev Executes an ERC20 to ERC20 limit swap
-  /// @notice This should be executed by metaDelegateCall_EIP1271() with the following signed and unsigned params
+  /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
   /// @param tokenIn The input token provided for the swap [signed]
@@ -48,7 +48,7 @@ contract LimitSwapVerifier {
   }
 
   /// @dev Executes an ETH to ERC20 limit swap
-  /// @notice This should be executed by metaDelegateCall_EIP1271() with the following signed and unsigned params
+  /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
   /// @param token The output token required to be received from the swap [signed]
@@ -75,7 +75,7 @@ contract LimitSwapVerifier {
   }
 
   /// @dev Executes an ERC20 to ETH limit swap
-  /// @notice This should be executed by metaDelegateCall_EIP1271() with the following signed and unsigned params
+  /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
   /// @param token The input token provided for the swap [signed]
