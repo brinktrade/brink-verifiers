@@ -4,7 +4,7 @@ pragma solidity ^0.7.6;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../External/CallExecutor.sol";
-import "../Libraries/ReplayBits.sol";
+import "../Libraries/Bit.sol";
 import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ERC20 limit swaps
@@ -37,7 +37,7 @@ contract LimitSwapVerifier {
   {
     require(expiryBlock > block.number, "EXPIRED");
   
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
 
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
@@ -65,7 +65,7 @@ contract LimitSwapVerifier {
   {
     require(expiryBlock > block.number, "EXPIRED");
 
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
 
     uint256 tokenBalance = token.balanceOf(address(this));
 
@@ -92,7 +92,7 @@ contract LimitSwapVerifier {
   {
     require(expiryBlock > block.number, "EXPIRED");
 
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
     
     uint256 ethBalance = address(this).balance;
 
