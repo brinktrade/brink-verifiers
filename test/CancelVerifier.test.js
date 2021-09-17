@@ -38,14 +38,14 @@ describe('CancelVerifier', function() {
     await expect(this.metaAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
-    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancelled').withArgs(0, 1)
+    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancel').withArgs(0, 1)
   })
 
   it('cancel existing bit should revert with \'BIT_USED\'', async function() {
     await expect(this.metaAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
-    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancelled').withArgs(0, 1)
+    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancel').withArgs(0, 1)
     await expect(this.metaAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
