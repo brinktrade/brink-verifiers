@@ -31,8 +31,8 @@ contract CallExecutor {
     // execute `data` on execution contract address `to`
     assembly {
       let result := call(gas(), to, 0, add(data, 0x20), mload(data), 0, 0)
+      returndatacopy(0, 0, returndatasize())
       if eq(result, 0) {
-        returndatacopy(0, 0, returndatasize())
         revert(0, returndatasize())
       }
     }
@@ -49,8 +49,8 @@ contract CallExecutor {
     // execute `data` on execution contract address `to`
     assembly {
       let result := call(gas(), to, callvalue(), add(data, 0x20), mload(data), 0, 0)
+      returndatacopy(0, 0, returndatasize())
       if eq(result, 0) {
-        returndatacopy(0, 0, returndatasize())
         revert(0, returndatasize())
       }
     }
