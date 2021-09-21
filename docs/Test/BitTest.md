@@ -5,12 +5,6 @@
 
 
 
-### `bitUsed(uint256 bitmapIndex, uint256 bit) → bool` (external)
-
-
-
-
-
 ### `loadBitmap(uint256 bitmapIndex) → uint256` (external)
 
 

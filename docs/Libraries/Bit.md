@@ -7,21 +7,6 @@ Solution adapted from https://github.com/PISAresearch/metamask-comp/blob/77fa829
 This is a gas optimized technique that stores up to 256 replay protection bits per bytes32 slot
 
 
-### `bitUsed(uint256 bitmapIndex, uint256 bit) → bool used` (internal)
-
-
-
-Returns a boolean indicating if a bit is used
-Value of bit cannot be zero and must represent a single bit
-
-
-### `loadBitmap(uint256 bitmapIndex) → uint256 bitmap` (internal)
-
-
-
-Returns a uint256 bitmap
-
-
 ### `useBit(uint256 bitmapIndex, uint256 bit)` (internal)
 
 
