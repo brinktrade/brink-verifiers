@@ -64,7 +64,6 @@ contract LimitSwapVerifier {
     external
   {
     require(expiryBlock > block.number, "EXPIRED");
-    require(address(this).balance >= ethAmount, "NOT_ENOUGH_ETH");
 
     Bit.useBit(bitmapIndex, bit);
 
