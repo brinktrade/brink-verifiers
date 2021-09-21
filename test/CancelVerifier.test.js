@@ -34,18 +34,18 @@ describe('CancelVerifier', function() {
     expect(storedBit.toString()).to.equal(`0x${padLeft('1', 64)}`)
   })
 
-  it('should emit a Cancelled event', async function() {
+  it('should emit a Cancel event', async function() {
     await expect(this.metaAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
-    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancelled').withArgs(0, 1)
+    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancel').withArgs(0, 1)
   })
 
   it('cancel existing bit should revert with \'BIT_USED\'', async function() {
     await expect(this.metaAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
-    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancelled').withArgs(0, 1)
+    )).to.emit(this.metaAccountWithCancelVerifier, 'Cancel').withArgs(0, 1)
     await expect(this.metaAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])

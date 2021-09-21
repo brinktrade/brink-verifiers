@@ -13,7 +13,7 @@ Cancels existing messages signed with bitmapIndex and bit
 
 
 
-### `Cancelled(uint256 bitmapIndex, uint256 bit)`
+### `Cancel(uint256 bitmapIndex, uint256 bit)`
 
 
 
