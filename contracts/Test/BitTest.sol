@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.7.6;
 
-import "../Libraries/ReplayBits.sol";
+import "../Libraries/Bit.sol";
 
-contract ReplayBitsTest {
+contract BitTest {
   function bitUsed(uint256 bitmapIndex, uint256 bit) external view returns (bool) {
-    return ReplayBits.bitUsed(bitmapIndex, bit);
+    return Bit.bitUsed(bitmapIndex, bit);
   }
 
   function loadBitmap (uint256 bitmapIndex) external view returns (uint256) {
-    return ReplayBits.loadBitmap(bitmapIndex);
+    return Bit.loadBitmap(bitmapIndex);
   }
 
   function useBit(uint256 bitmapIndex, uint256 bit) external {
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
   }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.7.6;
 
-import "../Libraries/ReplayBits.sol";
+import "../Libraries/Bit.sol";
 import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ETH and ERC20 transfers
@@ -21,7 +21,7 @@ contract TransferVerifier {
     external
   {
     require(expiryBlock > block.number, "EXPIRED");
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
     TransferHelper.safeTransferETH(recipient, amount);
   }
 
@@ -39,7 +39,7 @@ contract TransferVerifier {
     external
   {
     require(expiryBlock > block.number, "EXPIRED");
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
     TransferHelper.safeTransfer(token, recipient, amount);
   }
 }

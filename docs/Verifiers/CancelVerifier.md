@@ -1,6 +1,6 @@
 ## `CancelVerifier`
 
-Uses the ReplayBits library to use the bit, which invalidates messages signed with the same bit
+Uses the Bit library to use the bit, which invalidates messages signed with the same bit
 
 
 

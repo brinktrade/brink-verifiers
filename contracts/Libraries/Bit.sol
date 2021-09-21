@@ -5,7 +5,7 @@ pragma solidity >=0.7.6;
 /// @notice Handles storage and loads for replay protection bits
 /// @dev Solution adapted from https://github.com/PISAresearch/metamask-comp/blob/77fa8295c168ee0b6bf801cbedab797d6f8cfd5d/src/contracts/BitFlipMetaTransaction/README.md
 /// @dev This is a gas optimized technique that stores up to 256 replay protection bits per bytes32 slot
-library ReplayBits {
+library Bit {
   /// @dev Returns a boolean indicating if a bit is used
   /// @dev Value of bit cannot be zero and must represent a single bit
   /// @param bitmapIndex The index of the uint256 bitmap

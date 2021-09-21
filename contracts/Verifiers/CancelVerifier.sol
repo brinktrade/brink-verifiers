@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.7.6;
 
-import "../Libraries/ReplayBits.sol";
+import "../Libraries/Bit.sol";
 
 /// @title Verifier for cancel of messages signed with a bitmapIndex and bit
-/// @notice Uses the ReplayBits library to use the bit, which invalidates messages signed with the same bit
+/// @notice Uses the Bit library to use the bit, which invalidates messages signed with the same bit
 contract CancelVerifier {
   event Cancelled (uint256 bitmapIndex, uint256 bit);
 
@@ -12,7 +12,7 @@ contract CancelVerifier {
   /// @param bitmapIndex The bitmap index to use
   /// @param bit The bit to use
   function cancel(uint256 bitmapIndex, uint256 bit) external {
-    ReplayBits.useBit(bitmapIndex, bit);
+    Bit.useBit(bitmapIndex, bit);
     emit Cancelled(bitmapIndex, bit);
   }
 }

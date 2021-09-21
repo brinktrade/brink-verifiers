@@ -1,4 +1,4 @@
-## `ReplayBits`
+## `Bit`
 
 Handles storage and loads for replay protection bits
 
