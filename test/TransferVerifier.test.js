@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat')
 const { expect } = require('chai')
-const { setupMetaAccount, getSigners } = require('@brinkninja/core/test/helpers')
+const { setupProxyAccount, getSigners } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
 const { BN, encodeFunctionCall } = brinkUtils
 const { BN18 } = brinkUtils.constants
@@ -29,20 +29,25 @@ describe('TransferVerifier', function() {
     const TransferVerifier = await ethers.getContractFactory('TransferVerifier')
     const TestERC20 = await ethers.getContractFactory('TestERC20')
     const tokenA = await TestERC20.deploy('Token A', 'TKNA', 18)
-    const { metaAccount } = await setupMetaAccount()
+    const { proxyAccount, proxyOwner } = await setupProxyAccount()
     this.transferVerifier = await TransferVerifier.deploy()
-    this.metaAccount = metaAccount
+    this.proxyAccount = proxyAccount
+    this.proxyOwner = proxyOwner
     
-    const { defaultAccount, metaAccountOwner, transferRecipient } = await getSigners()
+    const [ defaultAccount, transferRecipient, , , , proxyOwner_4, proxyOwner_5 ] = await ethers.getSigners()
     this.defaultAccount = defaultAccount
-    this.metaAccountOwner = metaAccountOwner
+    this.proxyOwner_4 = proxyOwner_4
+    this.proxyOwner_5 = proxyOwner_5
     this.transferRecipient = transferRecipient
     this.tokenA = tokenA
 
-    this.signedDelegateCall = signedData => execMetaTx({
-      contract: this.metaAccount,
+    const chainId = await defaultAccount.getChainId()
+
+    this.signedDelegateCall = ({ signedData, account, owner }) => execMetaTx({
+      contract: account || this.proxyAccount,
       method: 'metaDelegateCall',
-      signer: this.metaAccountOwner,
+      signer: owner || this.proxyOwner,
+      chainId,
       params: [
         this.transferVerifier.address,
         signedData
@@ -58,7 +63,7 @@ describe('TransferVerifier', function() {
   describe('tokenTransfer()', function () {
     beforeEach(async function () {
       this.amount = BN(100).mul(BN18)
-      await this.tokenA.mint(this.metaAccount.address, this.amount)
+      await this.tokenA.mint(this.proxyAccount.address, this.amount)
       this.successCall = encodeFunctionCall(
         'tokenTransfer',
         TOKEN_TRANSFER_PARAM_TYPES.map(t => t.type),
@@ -78,26 +83,30 @@ describe('TransferVerifier', function() {
       )
     })
     it('valid signed call should transfer the token', async function () {
-      await this.signedDelegateCall(this.successCall)
-      expect(await this.tokenA.balanceOf(this.metaAccount.address)).to.equal(0)
+      await this.signedDelegateCall({ signedData: this.successCall })
+      expect(await this.tokenA.balanceOf(this.proxyAccount.address)).to.equal(0)
       expect(await this.tokenA.balanceOf(this.transferRecipient.address)).to.equal(this.amount)
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.signedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+      await expect(this.signedDelegateCall({ signedData: this.expiredCall })).to.be.revertedWith('EXPIRED')
     })
 
     it('when swap is replayed, should revert with BIT_USED', async function () {
-      await this.signedDelegateCall(this.successCall)
-      await expect(this.signedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+      await this.signedDelegateCall({ signedData: this.successCall })
+      await expect(this.signedDelegateCall({ signedData: this.successCall })).to.be.revertedWith('BIT_USED')
     })
 
     it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
-      await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('TRANSFER_FAILED')
+      await expect(this.signedDelegateCall({ signedData: this.notEnoughCall })).to.be.revertedWith('TRANSFER_FAILED')
     })
 
     it('gas cost', async function () {
-      const { tx } = await this.signedDelegateCall(this.successCall)
+      const { proxyAccount } = await setupProxyAccount(this.proxyOwner_4)
+      await this.tokenA.mint(proxyAccount.address, this.amount)
+      const { tx } = await this.signedDelegateCall({
+        signedData: this.successCall, account: proxyAccount, owner: this.proxyOwner_4
+      })
       await snapshotGas(new Promise(r => r(tx)))
     })
   })
@@ -106,7 +115,7 @@ describe('TransferVerifier', function() {
     beforeEach(async function () {
       this.amount = BN(100).mul(BN18)
       await this.defaultAccount.sendTransaction({
-        to: this.metaAccount.address,
+        to: this.proxyAccount.address,
         value: this.amount
       })
       this.successCall = encodeFunctionCall(
@@ -130,27 +139,36 @@ describe('TransferVerifier', function() {
 
     it('valid signed call should transfer the ETH', async function () {
       const iBalance = await ethers.provider.getBalance(this.transferRecipient.address)
-      await this.signedDelegateCall(this.successCall)
-      expect(await ethers.provider.getBalance(this.metaAccount.address)).to.equal(0)
+      await this.signedDelegateCall({ signedData: this.successCall })
+      expect(await ethers.provider.getBalance(this.proxyAccount.address)).to.equal(0)
       const fBalance = await ethers.provider.getBalance(this.transferRecipient.address)
       expect(fBalance.sub(iBalance)).to.equal(this.amount)
     })
 
     it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.signedDelegateCall(this.expiredCall)).to.be.revertedWith('EXPIRED')
+      await expect(this.signedDelegateCall({ signedData: this.expiredCall })).to.be.revertedWith('EXPIRED')
     })
 
     it('when swap is replayed, should revert with BIT_USED', async function () {
-      await this.signedDelegateCall(this.successCall)
-      await expect(this.signedDelegateCall(this.successCall)).to.be.revertedWith('BIT_USED')
+      await this.signedDelegateCall({ signedData: this.successCall })
+      await expect(this.signedDelegateCall({ signedData: this.successCall })).to.be.revertedWith('BIT_USED')
     })
 
     it('when account does not have enough token, should revert with ETH_TRANSFER_FAILED', async function () {
-      await expect(this.signedDelegateCall(this.notEnoughCall)).to.be.revertedWith('ETH_TRANSFER_FAILED')
+      await expect(this.signedDelegateCall({ signedData: this.notEnoughCall })).to.be.revertedWith('ETH_TRANSFER_FAILED')
     })
 
     it('gas cost', async function () {
-      const { tx } = await this.signedDelegateCall(this.successCall)
+      const { proxyAccount } = await setupProxyAccount(this.proxyOwner_5)
+      await this.defaultAccount.sendTransaction({
+        to: proxyAccount.address,
+        value: this.amount
+      })
+      const { tx } = await this.signedDelegateCall({
+        signedData: this.successCall,
+        account: proxyAccount,
+        owner: this.proxyOwner_5
+      })
       await snapshotGas(new Promise(r => r(tx)))
     })
   })

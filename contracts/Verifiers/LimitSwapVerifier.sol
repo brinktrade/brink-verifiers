@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.7.6;
+pragma solidity =0.8.10;
+pragma abicoder v1;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../External/CallExecutor.sol";
 import "../Libraries/Bit.sol";
@@ -10,8 +10,6 @@ import "../Libraries/TransferHelper.sol";
 /// @title Verifier for ERC20 limit swaps
 /// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
 contract LimitSwapVerifier {
-  using SafeMath for uint256;
-
   CallExecutor internal immutable CALL_EXECUTOR;
 
   constructor(CallExecutor callExecutor) {
@@ -44,7 +42,7 @@ contract LimitSwapVerifier {
     TransferHelper.safeTransfer(address(tokenIn), to, tokenInAmount);
     CALL_EXECUTOR.proxyCall(to, data);
 
-    require(tokenOut.balanceOf(address(this)).sub(tokenOutBalance) >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
+    require(tokenOut.balanceOf(address(this)) - tokenOutBalance >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
   }
 
   /// @dev Executes an ETH to ERC20 limit swap
@@ -71,7 +69,7 @@ contract LimitSwapVerifier {
 
     CALL_EXECUTOR.proxyPayableCall{value: ethAmount}(to, data);
 
-    require(token.balanceOf(address(this)).sub(tokenBalance) >= tokenAmount, "NOT_ENOUGH_RECEIVED");
+    require(token.balanceOf(address(this)) - tokenBalance >= tokenAmount, "NOT_ENOUGH_RECEIVED");
   }
 
   /// @dev Executes an ERC20 to ETH limit swap
@@ -99,6 +97,6 @@ contract LimitSwapVerifier {
     TransferHelper.safeTransfer(address(token), to, tokenAmount);
     CALL_EXECUTOR.proxyCall(to, data);
 
-    require(address(this).balance.sub(ethBalance) >= ethAmount, "NOT_ENOUGH_RECEIVED");
+    require(address(this).balance - ethBalance >= ethAmount, "NOT_ENOUGH_RECEIVED");
   }
 }

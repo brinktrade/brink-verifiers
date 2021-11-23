@@ -10,13 +10,10 @@
     check-more-types "2.24.0"
     lazy-ass "1.6.0"
 
-"@brinkninja/core@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@brinkninja/core/-/core-0.4.0.tgz#8ae41c8563d4cc4b858dd8507cbdd6f905af865f"
-  integrity sha512-gWLM8MhQMlDS8hSGUl3Qq92S8cTNtjhcn04bL8B2HmTF8cez39TMc55OssNu8rGkGBNvKiDA9Y4BWwGz8Cpl8Q==
-  dependencies:
-    "@openzeppelin/contracts" "3.4.1-solc-0.7-2"
-    require-directory "^2.1.1"
+"@brinkninja/core@1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@brinkninja/core/-/core-1.0.0-rc.1.tgz#8de91791b0236fd3f6f3c9ae10f1832e9185fbe8"
+  integrity sha512-aq6wpBn/untwRjPsA5gcs6nX9BY8guPwaORusmbYBiXwP3fXAJ1UKQbLfBBkEeZFlRfXjnCa+hb7wl2RWUuJSQ==
 
 "@brinkninja/range-orders@^0.2.0":
   version "0.2.0"
@@ -26,10 +23,10 @@
     "@uniswap/v3-core" "^1.0.0-rc.1"
     "@uniswap/v3-periphery" "^1.0.0-beta.19"
 
-"@brinkninja/utils@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@brinkninja/utils/-/utils-0.3.0.tgz#94a6b2a3ccfc0f9a9c4c8f1684abd0f6ecbed149"
-  integrity sha512-jAjJLCepH9KjY/n+4bWFssEfvy7ROxu11JHgSdcWZTn/k+kwgHK+NWwgJvQyqsAOUS0EBysYvIFU4uFvXrNZDQ==
+"@brinkninja/utils@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@brinkninja/utils/-/utils-0.3.2.tgz#8bb1de15c76028071265b42ce9361ba381cb36e9"
+  integrity sha512-UtVXFWWO+SLOj8OIGmZbuU2FMn61zpSBPNpVplsUZZOZ+BpHjAwFGtUl44L0ua684+aPx7JdNV6PWFJ6sNo4uQ==
   dependencies:
     "@ethersproject/bignumber" "^5.4.1"
     eth-sig-util "2.5.3"
@@ -643,6 +640,11 @@
   version "3.4.1-solc-0.7-2"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.1-solc-0.7-2.tgz#371c67ebffe50f551c3146a9eec5fe6ffe862e92"
   integrity sha512-tAG9LWg8+M2CMu7hIsqHPaTyG4uDzjr6mhvH96LvOpLZZj6tgzTluBt+LsCf1/QaYrlis6pITvpIaIhE+iZB+Q==
+
+"@openzeppelin/contracts@4.3.3":
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.3.3.tgz#ff6ee919fc2a1abaf72b22814bfb72ed129ec137"
+  integrity sha512-tDBopO1c98Yk7Cv/PZlHqrvtVjlgK5R4J6jxLwoO7qxK4xqOiZG+zSkIvGFpPZ0ikc3QOED3plgdqjgNTnBc7g==
 
 "@resolver-engine/core@^0.3.3":
   version "0.3.3"
@@ -2277,6 +2279,11 @@ commander@3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/commander/-/commander-3.0.2.tgz#6837c3fb677ad9933d1cfba42dd14d5117d6b39e"
   integrity sha512-Gar0ASD4BDyKC4hl4DwHqDrmvjoxWKZigVnAbn5H1owvm4CxCPdb0HQDehwNYMJpla5+M2tPmPARzhtYuwpHow==
+
+commander@^8.1.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
+  integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
 common-tags@1.8.0:
   version "1.8.0"
@@ -6814,13 +6821,13 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-"solc-0.7.6@npm:solc@0.7.6":
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.7.6.tgz#21fc5dc11b85fcc518c181578b454f3271c27252"
-  integrity sha512-WsR/W7CXwh2VnmZapB4JrsDeLlshoKBz5Pz/zYNulB6LBsOEHI2Zj/GeKLMFcvv57OHiXHvxq5ZOQB+EdqxlxQ==
+"solc-0.8.10@npm:solc@0.8.10":
+  version "0.8.10"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.8.10.tgz#3f761794677a36cdd8054f4ec57d84bab8455358"
+  integrity sha512-I/Mcn6J5bEtJqveNLplQm9IRrhemm6v+qkw5S2+wM4x9HItJ1sYdrqVTN3j4DMhFDM3ZbvM0QywVzpPx666PHw==
   dependencies:
     command-exists "^1.2.8"
-    commander "3.0.2"
+    commander "^8.1.0"
     follow-redirects "^1.12.1"
     fs-extra "^0.30.0"
     js-sha3 "0.8.0"
