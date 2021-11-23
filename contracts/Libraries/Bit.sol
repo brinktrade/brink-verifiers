@@ -7,6 +7,10 @@ pragma abicoder v1;
 /// @dev Solution adapted from https://github.com/PISAresearch/metamask-comp/blob/77fa8295c168ee0b6bf801cbedab797d6f8cfd5d/src/contracts/BitFlipMetaTransaction/README.md
 /// @dev This is a gas optimized technique that stores up to 256 replay protection bits per bytes32 slot
 library Bit {
+  /// @dev Initial pointer for bitmap storage ptr computation
+  /// @notice This is the uint256 representation of keccak("bmp")
+  uint256 constant INITIAL_BMP_PTR = 
+  48874093989078844336340380824760280705349075126087700760297816282162649029611;
 
   /// @dev Adds a bit to the uint256 bitmap at bitmapIndex
   /// @dev Value of bit cannot be zero and must represent a single bit
@@ -31,7 +35,7 @@ library Bit {
   /// @dev Get a bitmap storage pointer
   /// @return The bytes32 pointer to the storage location of the uint256 bitmap at bitmapIndex
   function bitmapPtr (uint256 bitmapIndex) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked("bmp", bitmapIndex));
+    return bytes32(INITIAL_BMP_PTR + bitmapIndex);
   }
 
   /// @dev Returns the uint256 value at storage location ptr
