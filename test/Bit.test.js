@@ -24,17 +24,17 @@ describe('Bit', function () {
       expect(bnToBinaryString(bitmap)).to.equal('101')
     })
 
-    it('when bit is zero, should revert with INVALID_BIT', async function() {
-      await expect(this.bit.useBit(BN(0), BN(0))).to.be.revertedWith('INVALID_BIT')
+    it('when bit is zero, should revert with InvalidBit()', async function() {
+      await expect(this.bit.useBit(BN(0), BN(0))).to.be.revertedWith('InvalidBit()')
     })
 
-    it('when bit is not a single bit, should revert with INVALID_BIT', async function () {
-      await expect(this.bit.useBit(BN(0), BN(3))).to.be.revertedWith('INVALID_BIT')
+    it('when bit is not a single bit, should revert with InvalidBit()', async function () {
+      await expect(this.bit.useBit(BN(0), BN(3))).to.be.revertedWith('InvalidBit()')
     })
 
-    it('when bit is used, should revert with BIT_USED', async function () {
+    it('when bit is used, should revert with BitUsed()', async function () {
       await this.bit.useBit(BN(1), BN(4)) // slot 1, index 2 : 2**2 = 4
-      await expect(this.bit.useBit(BN(1), BN(4))).to.be.revertedWith('BIT_USED')
+      await expect(this.bit.useBit(BN(1), BN(4))).to.be.revertedWith('BitUsed()')
     })
 
     it('gas cost', async function () {

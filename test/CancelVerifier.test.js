@@ -38,7 +38,7 @@ describe('CancelVerifier', function() {
     )).to.emit(this.proxyAccountWithCancelVerifier, 'Cancel').withArgs(0, 1)
   })
 
-  it('cancel existing bit should revert with \'BIT_USED\'', async function() {
+  it('cancel existing bit should revert with \'BitUsed()\'', async function() {
     await expect(this.proxyAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
@@ -46,21 +46,21 @@ describe('CancelVerifier', function() {
     await expect(this.proxyAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
-    )).to.be.revertedWith('BIT_USED')
+    )).to.be.revertedWith('BitUsed()')
   })
 
-  it('cancel with zero bit should revert with \'INVALID_BIT\'', async function() {
+  it('cancel with zero bit should revert with \'InvalidBit()\'', async function() {
     await expect(this.proxyAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 0])
-    )).to.be.revertedWith('INVALID_BIT')
+    )).to.be.revertedWith('InvalidBit()')
   })
 
-  it('cancel with multiple bits should revert with \'INVALID_BIT\'', async function() {
+  it('cancel with multiple bits should revert with \'InvalidBit()\'', async function() {
     await expect(this.proxyAccount.delegateCall(
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 3])
-    )).to.be.revertedWith('INVALID_BIT')
+    )).to.be.revertedWith('InvalidBit()')
   })
 
   it('gas cost', async function() {
