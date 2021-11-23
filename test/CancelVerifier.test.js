@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const { ethers } = require('hardhat')
 const brinkUtils = require('@brinkninja/utils')
 const { soliditySha3, padLeft } = require('web3-utils')
-const { encodeFunctionCall } = brinkUtils
+const { BN, encodeFunctionCall } = brinkUtils
 const snapshotGas = require('./helpers/snapshotGas')
 const { setupProxyAccount, getSigners } = require('@brinkninja/core/test/helpers')
 
@@ -26,10 +26,7 @@ describe('CancelVerifier', function() {
       this.cancelVerifier.address,
       encodeFunctionCall('cancel', ['uint256', 'uint256'], [0, 1])
     )
-    const bmpPtr = soliditySha3(
-      { t: 'string', v: 'bmp' },
-      { t: 'uint256', v: 0 }
-    )
+    const bmpPtr = BN(soliditySha3('bmp')).add(BN(0))
     const storedBit = await ethers.provider.getStorageAt(this.proxyAccount.address, bmpPtr)
     expect(storedBit.toString()).to.equal(`0x${padLeft('1', 64)}`)
   })
