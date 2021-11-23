@@ -27,9 +27,16 @@ library Bit {
   }
 
   /// @dev Check that a bit is valid
-  /// @return True if bit is greater than zero and represents a single bit
-  function validBit(uint256 bit) internal pure returns (bool) {
-    return bit > 0 && bit & bit-1 == 0;
+  /// @param bit The bit to check
+  /// @return isValid True if bit is greater than zero and represents a single bit
+  function validBit(uint256 bit) internal pure returns (bool isValid) {
+    assembly {
+      // equivalent to: isValid = (bit > 0 && bit & bit-1) == 0;
+      switch iszero(bit)
+      case false {
+        isValid := iszero(and(bit, sub(bit, 1)))
+      }
+    }
   }
 
   /// @dev Get a bitmap storage pointer
