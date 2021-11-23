@@ -1,1 +1,1 @@
-exports['Bit useBit() gas cost 1'] = 44034
+exports['Bit useBit() gas cost 1'] = 43978
