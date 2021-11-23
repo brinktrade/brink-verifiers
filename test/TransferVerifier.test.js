@@ -88,13 +88,13 @@ describe('TransferVerifier', function() {
       expect(await this.tokenA.balanceOf(this.transferRecipient.address)).to.equal(this.amount)
     })
 
-    it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.signedDelegateCall({ signedData: this.expiredCall })).to.be.revertedWith('EXPIRED')
+    it('when swap is expired, should revert with Expired()', async function () {
+      await expect(this.signedDelegateCall({ signedData: this.expiredCall })).to.be.revertedWith('Expired()')
     })
 
-    it('when swap is replayed, should revert with BIT_USED', async function () {
+    it('when swap is replayed, should revert with BitUsed()', async function () {
       await this.signedDelegateCall({ signedData: this.successCall })
-      await expect(this.signedDelegateCall({ signedData: this.successCall })).to.be.revertedWith('BIT_USED')
+      await expect(this.signedDelegateCall({ signedData: this.successCall })).to.be.revertedWith('BitUsed()')
     })
 
     it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
@@ -145,13 +145,13 @@ describe('TransferVerifier', function() {
       expect(fBalance.sub(iBalance)).to.equal(this.amount)
     })
 
-    it('when swap is expired, should revert with EXPIRED', async function () {
-      await expect(this.signedDelegateCall({ signedData: this.expiredCall })).to.be.revertedWith('EXPIRED')
+    it('when swap is expired, should revert with Expired()', async function () {
+      await expect(this.signedDelegateCall({ signedData: this.expiredCall })).to.be.revertedWith('Expired()')
     })
 
-    it('when swap is replayed, should revert with BIT_USED', async function () {
+    it('when swap is replayed, should revert with BitUsed()', async function () {
       await this.signedDelegateCall({ signedData: this.successCall })
-      await expect(this.signedDelegateCall({ signedData: this.successCall })).to.be.revertedWith('BIT_USED')
+      await expect(this.signedDelegateCall({ signedData: this.successCall })).to.be.revertedWith('BitUsed()')
     })
 
     it('when account does not have enough token, should revert with ETH_TRANSFER_FAILED', async function () {

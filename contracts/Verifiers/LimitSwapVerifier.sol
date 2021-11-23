@@ -10,6 +10,12 @@ import "../Libraries/TransferHelper.sol";
 /// @title Verifier for ERC20 limit swaps
 /// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
 contract LimitSwapVerifier {
+  /// @dev Revert when limit swap is expired
+  error Expired();
+
+  /// @dev Revert when swap has not received enough of the output asset to be fulfilled
+  error NotEnoughReceived(uint256 amountReceived);
+
   CallExecutor internal immutable CALL_EXECUTOR;
 
   constructor(CallExecutor callExecutor) {
@@ -33,7 +39,9 @@ contract LimitSwapVerifier {
   )
     external
   {
-    require(expiryBlock > block.number, "EXPIRED");
+    if (expiryBlock <= block.number) {
+      revert Expired();
+    }
   
     Bit.useBit(bitmapIndex, bit);
 
@@ -42,7 +50,10 @@ contract LimitSwapVerifier {
     TransferHelper.safeTransfer(address(tokenIn), to, tokenInAmount);
     CALL_EXECUTOR.proxyCall(to, data);
 
-    require(tokenOut.balanceOf(address(this)) - tokenOutBalance >= tokenOutAmount, "NOT_ENOUGH_RECEIVED");
+    uint256 tokenOutAmountReceived = tokenOut.balanceOf(address(this)) - tokenOutBalance;
+    if (tokenOutAmountReceived < tokenOutAmount) {
+      revert NotEnoughReceived(tokenOutAmountReceived);
+    }
   }
 
   /// @dev Executes an ETH to ERC20 limit swap
@@ -61,7 +72,9 @@ contract LimitSwapVerifier {
   )
     external
   {
-    require(expiryBlock > block.number, "EXPIRED");
+    if (expiryBlock <= block.number) {
+      revert Expired();
+    }
 
     Bit.useBit(bitmapIndex, bit);
 
@@ -69,7 +82,10 @@ contract LimitSwapVerifier {
 
     CALL_EXECUTOR.proxyPayableCall{value: ethAmount}(to, data);
 
-    require(token.balanceOf(address(this)) - tokenBalance >= tokenAmount, "NOT_ENOUGH_RECEIVED");
+    uint256 tokenAmountReceived = token.balanceOf(address(this)) - tokenBalance;
+    if (tokenAmountReceived < tokenAmount) {
+      revert NotEnoughReceived(tokenAmountReceived);
+    }
   }
 
   /// @dev Executes an ERC20 to ETH limit swap
@@ -88,7 +104,9 @@ contract LimitSwapVerifier {
   )
     external
   {
-    require(expiryBlock > block.number, "EXPIRED");
+    if (expiryBlock <= block.number) {
+      revert Expired();
+    }
 
     Bit.useBit(bitmapIndex, bit);
     
@@ -97,6 +115,9 @@ contract LimitSwapVerifier {
     TransferHelper.safeTransfer(address(token), to, tokenAmount);
     CALL_EXECUTOR.proxyCall(to, data);
 
-    require(address(this).balance - ethBalance >= ethAmount, "NOT_ENOUGH_RECEIVED");
+    uint256 ethAmountReceived = address(this).balance - ethBalance;
+    if (ethAmountReceived < ethAmount) {
+      revert NotEnoughReceived(ethAmountReceived);
+    }
   }
 }

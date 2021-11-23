@@ -7,6 +7,12 @@ pragma abicoder v1;
 /// @dev Solution adapted from https://github.com/PISAresearch/metamask-comp/blob/77fa8295c168ee0b6bf801cbedab797d6f8cfd5d/src/contracts/BitFlipMetaTransaction/README.md
 /// @dev This is a gas optimized technique that stores up to 256 replay protection bits per bytes32 slot
 library Bit {
+  /// @dev Revert when bit provided is not valid
+  error InvalidBit();
+
+  /// @dev Revert when bit provided is used
+  error BitUsed();
+
   /// @dev Initial pointer for bitmap storage ptr computation
   /// @notice This is the uint256 representation of keccak("bmp")
   uint256 constant INITIAL_BMP_PTR = 
@@ -17,11 +23,15 @@ library Bit {
   /// @param bitmapIndex The index of the uint256 bitmap
   /// @param bit The value of the bit within the uint256 bitmap
   function useBit(uint256 bitmapIndex, uint256 bit) internal {
-    require(validBit(bit), "INVALID_BIT");
+    if (!validBit(bit)) {
+      revert InvalidBit();
+    }
     bytes32 ptr = bitmapPtr(bitmapIndex);
     uint256 bitmap = loadUint(ptr);
     bool bitUsed = bitmap & bit != 0;
-    require(!bitUsed, "BIT_USED");
+    if (bitUsed) {
+      revert BitUsed();
+    }
     uint256 updatedBitmap = bitmap | bit;
     assembly { sstore(ptr, updatedBitmap) }
   }

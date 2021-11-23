@@ -8,6 +8,8 @@ import "../Libraries/TransferHelper.sol";
 /// @title Verifier for ETH and ERC20 transfers
 /// @notice These functions should be executed by metaDelegateCall() on Brink account proxy contracts
 contract TransferVerifier {
+  /// @dev Revert when transfer is expired
+  error Expired();
 
   /// @dev Executes an ETH transfer with replay protection and expiry
   /// @notice This should be executed by metaDelegateCall() with the following signed params
@@ -21,7 +23,9 @@ contract TransferVerifier {
   )
     external
   {
-    require(expiryBlock > block.number, "EXPIRED");
+    if (expiryBlock <= block.number) {
+      revert Expired();
+    }
     Bit.useBit(bitmapIndex, bit);
     TransferHelper.safeTransferETH(recipient, amount);
   }
@@ -39,7 +43,9 @@ contract TransferVerifier {
   )
     external
   {
-    require(expiryBlock > block.number, "EXPIRED");
+    if (expiryBlock <= block.number) {
+      revert Expired();
+    }
     Bit.useBit(bitmapIndex, bit);
     TransferHelper.safeTransfer(token, recipient, amount);
   }
