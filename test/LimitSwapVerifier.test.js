@@ -181,8 +181,8 @@ describe('LimitSwapVerifier', function() {
       await expect(this.metaDelegateCall(this.notEnoughTokenCall)).to.be.revertedWith(`NotEnoughReceived(${this.tokenBSwapAmount.sub(BN(1)).toString()})`)
     })
 
-    it('when account does not have enough tokenIn, should revert with TRANSFER_FAILED', async function () {
-      await expect(this.metaDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
+    it('when account does not have enough tokenIn, should revert with "ERC20: transfer amount exceeds balance"', async function () {
+      await expect(this.metaDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
     })
 
     it('when swap is expired, should revert with Expired()', async function () {
@@ -427,8 +427,8 @@ describe('LimitSwapVerifier', function() {
         .to.be.revertedWith(`NotEnoughReceived(${this.ethSwapAmount.sub(1).toString()})`)
     })
 
-    it('when account does not have enough token, should revert with TRANSFER_FAILED', async function () {
-      await expect(this.metaDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('TRANSFER_FAILED')
+    it('when account does not have enough token, should revert with "ERC20: transfer amount exceeds balance"', async function () {
+      await expect(this.metaDelegateCall(this.insufficientBalanceCall)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
     })
 
     it('when swap is expired, should revert with Expired()', async function () {
