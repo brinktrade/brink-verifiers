@@ -35,7 +35,7 @@ contract LimitSwapVerifier {
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToToken(
     uint256 bitmapIndex, uint256 bit, IERC20 tokenIn, IERC20 tokenOut, uint256 tokenInAmount, uint256 tokenOutAmount,
-    uint256 expiryBlock, address to, bytes memory data
+    uint256 expiryBlock, address to, bytes calldata data
   )
     external
   {
@@ -68,7 +68,7 @@ contract LimitSwapVerifier {
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function ethToToken(
     uint256 bitmapIndex, uint256 bit, IERC20 token, uint256 ethAmount, uint256 tokenAmount, uint256 expiryBlock,
-    address to, bytes memory data
+    address to, bytes calldata data
   )
     external
   {
@@ -100,7 +100,7 @@ contract LimitSwapVerifier {
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToEth(
     uint256 bitmapIndex, uint256 bit, IERC20 token, uint256 tokenAmount, uint256 ethAmount, uint256 expiryBlock,
-    address to, bytes memory data
+    address to, bytes calldata data
   )
     external
   {
