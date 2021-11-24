@@ -15,7 +15,7 @@ Adds a bit to the uint256 bitmap at bitmapIndex
 Value of bit cannot be zero and must represent a single bit
 
 
-### `validBit(uint256 bit) → bool` (internal)
+### `validBit(uint256 bit) → bool isValid` (internal)
 
 
 
