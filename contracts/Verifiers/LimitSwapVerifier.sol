@@ -5,7 +5,6 @@ pragma abicoder v1;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../External/CallExecutor.sol";
 import "../Libraries/Bit.sol";
-import "../Libraries/TransferHelper.sol";
 
 /// @title Verifier for ERC20 limit swaps
 /// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
@@ -47,7 +46,8 @@ contract LimitSwapVerifier {
 
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
-    TransferHelper.safeTransfer(address(tokenIn), to, tokenInAmount);
+    tokenIn.transfer(to, tokenInAmount);
+
     CALL_EXECUTOR.proxyCall(to, data);
 
     uint256 tokenOutAmountReceived = tokenOut.balanceOf(address(this)) - tokenOutBalance;
@@ -112,7 +112,8 @@ contract LimitSwapVerifier {
     
     uint256 ethBalance = address(this).balance;
 
-    TransferHelper.safeTransfer(address(token), to, tokenAmount);
+    token.transfer(to, tokenAmount);
+
     CALL_EXECUTOR.proxyCall(to, data);
 
     uint256 ethAmountReceived = address(this).balance - ethBalance;
