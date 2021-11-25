@@ -42,11 +42,11 @@ library Bit {
   function validBit(uint256 bit) internal pure returns (bool isValid) {
     assembly {
       // equivalent to: isValid = (bit > 0 && bit & bit-1) == 0;
-      switch iszero(bit)
-      case false {
-        isValid := iszero(and(bit, sub(bit, 1)))
-      }
-    }
+      isValid := and(
+        iszero(iszero(bit)), 
+        iszero(and(bit, sub(bit, 1)))
+      )
+    } 
   }
 
   /// @dev Get a bitmap storage pointer
