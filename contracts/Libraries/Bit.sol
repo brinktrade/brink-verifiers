@@ -28,8 +28,7 @@ library Bit {
     }
     bytes32 ptr = bitmapPtr(bitmapIndex);
     uint256 bitmap = loadUint(ptr);
-    bool bitUsed = bitmap & bit != 0;
-    if (bitUsed) {
+    if (bitmap & bit != 0) {
       revert BitUsed();
     }
     uint256 updatedBitmap = bitmap | bit;
