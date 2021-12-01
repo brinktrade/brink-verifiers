@@ -20,16 +20,7 @@ attacker cannot impersonate the users's account.
 
 
 
-### `proxyCall(address to, bytes data)` (public)
-
-
-
-A non-payable function that executes a call with `data` on the
-contract address `to`
-
-Hardcoded 0 for call value
-
-### `proxyPayableCall(address to, bytes data)` (public)
+### `proxyCall(address to, bytes data)` (external)
 
 
 
@@ -38,5 +29,7 @@ contract address `to`
 
 Sets value for the call to `callvalue`, the amount of Eth provided with
 the call
+
+
 
 

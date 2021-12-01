@@ -5,7 +5,7 @@ These functions should be executed by metaPartialSignedDelegateCall() on Brink a
 
 
 
-### `constructor(contract CallExecutor callExecutor)` (public)
+### `constructor(contract ICallExecutor callExecutor)` (public)
 
 
 
@@ -33,6 +33,8 @@ This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with
 
 
 Executes an ERC20 to ETH limit swap
+
+
 
 
 

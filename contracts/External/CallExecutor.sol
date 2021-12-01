@@ -21,28 +21,6 @@ pragma abicoder v1;
  *
  */
 contract CallExecutor {
-
-  /**
-   * @dev A non-payable function that executes a call with `data` on the
-   * contract address `to`
-   *
-   * Hardcoded 0 for call value
-   */
-  function proxyCall(address to, bytes memory data) public {
-    // execute `data` on execution contract address `to`
-    assembly {
-      let result := call(gas(), to, 0, add(data, 0x20), mload(data), 0, 0)
-      returndatacopy(0, 0, returndatasize())
-      switch result
-      case 0 {
-        revert(0, returndatasize())
-      }
-      default {
-        return(0, returndatasize())
-      }
-    }
-  }
-
   /**
    * @dev A payable function that executes a call with `data` on the
    * contract address `to`
@@ -50,7 +28,7 @@ contract CallExecutor {
    * Sets value for the call to `callvalue`, the amount of Eth provided with
    * the call
    */
-  function proxyPayableCall(address to, bytes memory data) public payable {
+  function proxyCall(address to, bytes memory data) external payable {
     // execute `data` on execution contract address `to`
     assembly {
       let result := call(gas(), to, callvalue(), add(data, 0x20), mload(data), 0, 0)
@@ -64,5 +42,4 @@ contract CallExecutor {
       }
     }
   }
-
 }
