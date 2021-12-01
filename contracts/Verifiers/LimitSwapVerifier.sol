@@ -80,7 +80,7 @@ contract LimitSwapVerifier {
 
     uint256 tokenBalance = token.balanceOf(address(this));
 
-    CALL_EXECUTOR.proxyPayableCall{value: ethAmount}(to, data);
+    CALL_EXECUTOR.proxyCall{value: ethAmount}(to, data);
 
     uint256 tokenAmountReceived = token.balanceOf(address(this)) - tokenBalance;
     if (tokenAmountReceived < tokenAmount) {

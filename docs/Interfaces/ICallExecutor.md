@@ -11,12 +11,6 @@
 
 
 
-### `proxyPayableCall(address to, bytes data)` (external)
-
-
-
-
-
 
 
 

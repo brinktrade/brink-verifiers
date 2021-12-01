@@ -1,9 +1,9 @@
 exports['CallExecutor.sol deterministic address check 1'] = `
-0x4b9139410f1f345d6ca993b777E5C53Da2D9b346
+0x26e0a2EC2B79Ac3E9E0A8c52bCc76E8BbB843499
 `
 
 exports['LimitSwapVerifier.sol deterministic address check 1'] = `
-0x1Cc7a382356cf0D9EcE75B40E18A4F9F4F36E35a
+0x91c73e055C3ba41adD32231BfA904c7d7031cFc6
 `
 
 exports['CancelVerifier.sol deterministic address check 1'] = `
