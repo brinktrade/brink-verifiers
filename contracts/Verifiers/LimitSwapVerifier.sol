@@ -3,7 +3,7 @@ pragma solidity =0.8.10;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../External/CallExecutor.sol";
+import "../Interfaces/ICallExecutor.sol";
 import "../Libraries/Bit.sol";
 
 /// @title Verifier for ERC20 limit swaps
@@ -15,9 +15,9 @@ contract LimitSwapVerifier {
   /// @dev Revert when swap has not received enough of the output asset to be fulfilled
   error NotEnoughReceived(uint256 amountReceived);
 
-  CallExecutor internal immutable CALL_EXECUTOR;
+  ICallExecutor internal immutable CALL_EXECUTOR;
 
-  constructor(CallExecutor callExecutor) {
+  constructor(ICallExecutor callExecutor) {
     CALL_EXECUTOR = callExecutor;
   }
 
