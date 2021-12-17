@@ -10,10 +10,10 @@
     check-more-types "2.24.0"
     lazy-ass "1.6.0"
 
-"@brinkninja/core@1.0.0-rc.5":
-  version "1.0.0-rc.5"
-  resolved "https://registry.yarnpkg.com/@brinkninja/core/-/core-1.0.0-rc.5.tgz#71d2b23d2f764725567660ce340b610533405dc1"
-  integrity sha512-G2y3PG3E3HrWCFRKbQfyQ65GIr45G8X+ChRSem8CniZoiAKzxkMYpVsY6z9Y9c86eRXKmjyk4OiD3yRrNDT1sA==
+"@brinkninja/core@1.0.0-rc.6":
+  version "1.0.0-rc.6"
+  resolved "https://registry.yarnpkg.com/@brinkninja/core/-/core-1.0.0-rc.6.tgz#115a6b18fcf8094f544331d20c97cdccf059b30d"
+  integrity sha512-mqbylKhlPWaZfmcpLxWloRrpeu2XGkT0Qn0zal50rkAC+ChHdJmLiC9cO3ME/dN+rqgUs0k0ZBDwsMmbEA6s6Q==
 
 "@brinkninja/range-orders@^0.2.0":
   version "0.2.0"
