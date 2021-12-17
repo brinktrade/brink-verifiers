@@ -1,15 +1,15 @@
 exports['CallExecutor.sol deterministic address check 1'] = `
-0x26e0a2EC2B79Ac3E9E0A8c52bCc76E8BbB843499
+0xDE61dfE5fbF3F4Df70B16D0618f69B96A2754bf8
 `
 
 exports['LimitSwapVerifier.sol deterministic address check 1'] = `
-0x91c73e055C3ba41adD32231BfA904c7d7031cFc6
+0x53D468E719694f3e542Dda96a237Af08eb394f2C
 `
 
 exports['CancelVerifier.sol deterministic address check 1'] = `
-0xAe5c382e2d67E6b5078aa78C63eF1716549A6b56
+0xE0670a90E67eda0126D54843267b27Ca6343B2d8
 `
 
 exports['TransferVerifier.sol deterministic address check 1'] = `
-0xb049593e10bdDfC5904785b3AA46dbC6eEa0B1c3
+0x6df5AE08Ec7aE5CC2E9e3b0850A61AD7C73bC9A9
 `
