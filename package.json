@@ -1,6 +1,6 @@
 {
   "name": "@brinkninja/verifiers",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0",
   "dependencies": { },
   "scripts": {
     "compile": "hardhat compile",
