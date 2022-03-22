@@ -16,6 +16,7 @@
     "@brinkninja/utils": "^0.3.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@openzeppelin/contracts": "4.3.3",
+    "chai": "^4.3.6",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.1.2",
     "moment": "^2.29.1",
