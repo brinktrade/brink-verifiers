@@ -10,17 +10,8 @@ import "../Libraries/NativeOrERC20.sol";
 
 /// @title Verifier for ERC721 limit swaps
 /// @notice These functions should be executed by metaPartialSignedDelegateCall() on Brink account proxy contracts
-contract NFTLimitSwapVerifier {
+contract NftLimitSwapVerifier {
   using NativeOrERC20 for address;
-
-  /// @dev Revert when limit swap is expired
-  error Expired();
-
-  /// @dev Revert when swap has not received enough of the output asset to be fulfilled
-  error NotEnoughReceived(uint256 amountReceived);
-
-  error AlreadyOwnerOfNft();
-  error NftNotReceived();
 
   ICallExecutor internal immutable CALL_EXECUTOR;
 
@@ -45,9 +36,7 @@ contract NFTLimitSwapVerifier {
   )
     external
   {
-    if (expiryBlock <= block.number) {
-      revert Expired();
-    }
+    require(expiryBlock > block.number, 'Expired');
   
     Bit.useBit(bitmapIndex, bit);
 
@@ -56,14 +45,12 @@ contract NFTLimitSwapVerifier {
     if (tokenIn.isEth()) {
       CALL_EXECUTOR.proxyCall{value: tokenInAmount}(to, data);
     } else {
-      IERC20(tokenIn).approve(to, tokenInAmount);
+      IERC20(tokenIn).transfer(to, tokenInAmount);
       CALL_EXECUTOR.proxyCall(to, data);
     }
 
     uint256 nftOutAmountReceived = nftOut.balanceOf(address(this)) - nftOutBalance;
-    if (nftOutAmountReceived < nftOutAmount) {
-      revert NotEnoughReceived(nftOutAmountReceived);
-    }
+    require(nftOutAmountReceived >= nftOutAmount, 'NftNotReceived');
   }
 
   /// @dev Executes swap from a single ERC721 ID to fungible token (ERC20 or Native)
@@ -83,21 +70,17 @@ contract NFTLimitSwapVerifier {
   )
     external
   {
-    if (expiryBlock <= block.number) {
-      revert Expired();
-    }
+    require(expiryBlock > block.number, 'Expired');
   
     Bit.useBit(bitmapIndex, bit);
 
     uint256 tokenOutBalance = tokenOut.balanceOf(address(this));
 
-    nftIn.approve(to, nftInID);
+    nftIn.transferFrom(address(this), to, nftInID);
     CALL_EXECUTOR.proxyCall(to, data);
 
     uint256 tokenOutAmountReceived = tokenOut.balanceOf(address(this)) - tokenOutBalance;
-    if (tokenOutAmountReceived < tokenOutAmount) {
-      revert NotEnoughReceived(tokenOutAmountReceived);
-    }
+    require(tokenOutAmountReceived >= tokenOutAmount, 'NotEnoughReceived');
   }
 
   /// @dev Executes swap from one ERC721 to another ERC721
@@ -117,21 +100,15 @@ contract NFTLimitSwapVerifier {
   )
     external
   {
-    if (expiryBlock <= block.number) {
-      revert Expired();
-    }
+    require(expiryBlock > block.number, 'Expired');
   
     Bit.useBit(bitmapIndex, bit);
 
-    if (nftOut.ownerOf(nftOutID) == address(this)) {
-      revert AlreadyOwnerOfNft();
-    }
+    require(nftOut.ownerOf(nftOutID) != address(this), 'AlreadyOwnerOfNft');
 
-    nftIn.approve(to, nftInID);
+    nftIn.transferFrom(address(this), to, nftInID);
     CALL_EXECUTOR.proxyCall(to, data);
 
-    if (nftOut.ownerOf(nftOutID) != address(this)) {
-      revert NftNotReceived();
-    }
+    require(nftOut.ownerOf(nftOutID) == address(this), 'NftNotReceived');
   }
 }

@@ -3,6 +3,7 @@ pragma solidity =0.8.10;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract TestFulfillSwap {
 
@@ -14,6 +15,10 @@ contract TestFulfillSwap {
     bool success;
     (success, ) = account.call{value: ethOutAmount}("");
     require(success, "TestFulfillSwap: fulfillEthOutSwap send ether to msg.sender failed");
+  }
+
+  function fulfillNftOutSwap(IERC721 nftOut, uint nftID, address account) external payable {
+    nftOut.transferFrom(address(this), account, nftID);
   }
 
   receive() external payable {}
