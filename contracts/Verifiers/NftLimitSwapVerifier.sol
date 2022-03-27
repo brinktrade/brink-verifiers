@@ -15,7 +15,7 @@ contract NftLimitSwapVerifier {
 
   ICallExecutor constant CALL_EXECUTOR = ICallExecutor(0xDE61dfE5fbF3F4Df70B16D0618f69B96A2754bf8);
 
-  /// @dev Executes swap from fungible token (ERC20 or Native) to ERC721
+  /// @dev Verifies swap from fungible token (ERC20 or Native) to ERC721
   /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
@@ -50,7 +50,7 @@ contract NftLimitSwapVerifier {
     require(nftOutAmountReceived >= nftOutAmount, 'NotEnoughReceived');
   }
 
-  /// @dev Executes swap from a single ERC721 ID to fungible token (ERC20 or Native)
+  /// @dev Verifies swap from a single ERC721 ID to fungible token (ERC20 or Native)
   /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
@@ -80,7 +80,7 @@ contract NftLimitSwapVerifier {
     require(tokenOutAmountReceived >= tokenOutAmount, 'NotEnoughReceived');
   }
 
-  /// @dev Executes swap from one ERC721 to another ERC721
+  /// @dev Verifies swap from one ERC721 to another ERC721
   /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params
   /// @param bitmapIndex The index of the replay bit's bytes32 slot [signed]
   /// @param bit The value of the replay bit [signed]
