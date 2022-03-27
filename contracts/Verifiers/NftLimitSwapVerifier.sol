@@ -47,7 +47,7 @@ contract NftLimitSwapVerifier {
     }
 
     uint256 nftOutAmountReceived = nftOut.balanceOf(address(this)) - nftOutBalance;
-    require(nftOutAmountReceived >= nftOutAmount, 'NftNotReceived');
+    require(nftOutAmountReceived >= nftOutAmount, 'NotEnoughReceived');
   }
 
   /// @dev Executes swap from a single ERC721 ID to fungible token (ERC20 or Native)
@@ -87,12 +87,12 @@ contract NftLimitSwapVerifier {
   /// @param nftIn The ERC721 input token provided for the swap [signed]
   /// @param nftOut The ERC721 output token required to be received from the swap [signed]
   /// @param nftInID The ID of the nftIn token provided [signed]
-  /// @param nftOutID The ID of the nftOut required to be received [signed]
+  /// @param nftOutAmount The amount of the nftOut required to be received [signed]
   /// @param expiryBlock The block when the swap expires [signed]
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function nftToNft(
-    uint256 bitmapIndex, uint256 bit, IERC721 nftIn, IERC721 nftOut, uint256 nftInID, uint256 nftOutID,
+    uint256 bitmapIndex, uint256 bit, IERC721 nftIn, IERC721 nftOut, uint256 nftInID, uint256 nftOutAmount,
     uint256 expiryBlock, address to, bytes calldata data
   )
     external
@@ -101,11 +101,12 @@ contract NftLimitSwapVerifier {
   
     Bit.useBit(bitmapIndex, bit);
 
-    require(nftOut.ownerOf(nftOutID) != address(this), 'AlreadyOwnerOfNft');
+    uint256 nftOutBalance = nftOut.balanceOf(address(this));
 
     nftIn.transferFrom(address(this), to, nftInID);
     CALL_EXECUTOR.proxyCall(to, data);
 
-    require(nftOut.ownerOf(nftOutID) == address(this), 'NftNotReceived');
+    uint256 nftOutAmountReceived = nftOut.balanceOf(address(this)) - nftOutBalance;
+    require(nftOutAmountReceived >= nftOutAmount, 'NotEnoughReceived');
   }
 }

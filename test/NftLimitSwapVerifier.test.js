@@ -37,7 +37,7 @@ const NFT_LIMIT_SWAP_NFT_TO_NFT_PARAM_TYPES = [
   { name: 'nftIn', type: 'address' },
   { name: 'nftOut', type: 'address' },
   { name: 'nftInID', type: 'uint256' },
-  { name: 'nftOutID', type: 'uint256' },
+  { name: 'nftOutAmount', type: 'uint256' },
   { name: 'expiryBlock', type: 'uint256' },
   { name: 'to', type: 'address' },
   { name: 'data', type: 'bytes' },
@@ -237,7 +237,7 @@ describe('NftLimitSwapVerifier', function() {
     })
 
     it('when required NFT is not received by the account', async function () {
-      await expect(this.metaDelegateCall(this.nftNotReceivedCall)).to.be.revertedWith('NftNotReceived')
+      await expect(this.metaDelegateCall(this.nftNotReceivedCall)).to.be.revertedWith('NotEnoughReceived')
     })
 
     it('when account has insufficient ERC20 balance', async function () {
@@ -444,7 +444,6 @@ describe('NftLimitSwapVerifier', function() {
       await this.cryptoSkunks.mint(this.proxyAccount.address, this.cryptoSkunkID)
       await this.cryptoSkunks.mint((await randomAddress()).address, this.cryptoSkunkID + 1)
       await this.bamfs.mint(this.testFulfillSwap.address, this.bamfID)
-      await this.bamfs.mint(this.proxyAccount.address, this.bamfID + 1)
 
       const numSignedParams = 7
       const swapParams = [
@@ -452,7 +451,7 @@ describe('NftLimitSwapVerifier', function() {
         this.cryptoSkunks.address,
         this.bamfs.address,
         this.cryptoSkunkID,
-        this.bamfID
+        1
       ]
 
       this.successCall = proxyAccount => splitCallData(encodeFunctionCall(
@@ -467,21 +466,6 @@ describe('NftLimitSwapVerifier', function() {
             ['address', 'uint', 'address'],
             [ this.bamfs.address, this.bamfID, proxyAccount.address ]
           )
-        ]
-      ), numSignedParams)
-
-      this.alreadyOwnerCall = splitCallData(encodeFunctionCall(
-        'nftToNft',
-        NFT_LIMIT_SWAP_NFT_TO_NFT_PARAM_TYPES.map(t => t.type),
-        [
-          BN(0), BN(2),
-          this.cryptoSkunks.address,
-          this.bamfs.address,
-          this.cryptoSkunkID,
-          this.bamfID + 1,
-          this.expiryBlock.toString(),
-          this.testFulfillSwap.address,
-          encodeFunctionCall('fulfillNothing', [], [])
         ]
       ), numSignedParams)
 
@@ -504,7 +488,7 @@ describe('NftLimitSwapVerifier', function() {
           this.cryptoSkunks.address,
           this.bamfs.address,
           this.cryptoSkunkID + 1,
-          this.bamfID,
+          1,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
@@ -532,7 +516,7 @@ describe('NftLimitSwapVerifier', function() {
 
       expect(await this.cryptoSkunks.balanceOf(this.proxyAccount.address)).to.equal(1)
       expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.proxyAccount.address)
-      expect(await this.bamfs.balanceOf(this.proxyAccount.address)).to.equal(1)
+      expect(await this.bamfs.balanceOf(this.proxyAccount.address)).to.equal(0)
       expect(await this.bamfs.balanceOf(this.testFulfillSwap.address)).to.equal(1)
       expect(await this.bamfs.ownerOf(this.bamfID)).to.equal(this.testFulfillSwap.address)
     })
@@ -541,16 +525,12 @@ describe('NftLimitSwapVerifier', function() {
       await this.metaDelegateCall(this.successCall(this.proxyAccount))
       expect(await this.cryptoSkunks.balanceOf(this.proxyAccount.address)).to.equal(0)
       expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.testFulfillSwap.address)
-      expect(await this.bamfs.balanceOf(this.proxyAccount.address)).to.equal(2)
+      expect(await this.bamfs.balanceOf(this.proxyAccount.address)).to.equal(1)
       expect(await this.bamfs.ownerOf(this.bamfID)).to.equal(this.proxyAccount.address)
     })
 
-    it('when account already owns the required output NFT', async function () {
-      await expect(this.metaDelegateCall(this.alreadyOwnerCall)).to.be.revertedWith('AlreadyOwnerOfNft')
-    })
-
-    it('when required nft is not received by the account', async function () {
-      await expect(this.metaDelegateCall(this.nftNotReceivedCall)).to.be.revertedWith('NftNotReceived')
+    it('when required nft amount is not received by the account', async function () {
+      await expect(this.metaDelegateCall(this.nftNotReceivedCall)).to.be.revertedWith('NotEnoughReceived')
     })
 
     it('when account has insufficient NFT balance', async function () {
