@@ -10,4 +10,8 @@ contract TestERC721 is ERC721 {
   function mint(address to, uint256 tokenId) external {
     _mint(to, tokenId);
   }
+
+  function transferAny(address from, address to, uint tokenId) external {
+    _transfer(from, to, tokenId);
+  }
 }

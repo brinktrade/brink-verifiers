@@ -18,7 +18,13 @@ contract TestFulfillSwap {
   }
 
   function fulfillNftOutSwap(IERC721 nftOut, uint nftID, address account) external payable {
-    nftOut.transferFrom(address(this), account, nftID);
+    if (nftID > 0) {
+      nftOut.transferFrom(address(this), account, nftID);
+    }
+  }
+
+  function fulfillNothing () external payable {
+    
   }
 
   receive() external payable {}

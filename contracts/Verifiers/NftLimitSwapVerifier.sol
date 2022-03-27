@@ -43,6 +43,7 @@ contract NftLimitSwapVerifier {
     uint256 nftOutBalance = nftOut.balanceOf(address(this));
 
     if (tokenIn.isEth()) {
+      require(tokenInAmount <= address(this).balance, 'InsufficientEth');
       CALL_EXECUTOR.proxyCall{value: tokenInAmount}(to, data);
     } else {
       IERC20(tokenIn).transfer(to, tokenInAmount);
@@ -64,7 +65,7 @@ contract NftLimitSwapVerifier {
   /// @param expiryBlock The block when the swap expires [signed]
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
-  function NftToToken(
+  function nftToToken(
     uint256 bitmapIndex, uint256 bit, IERC721 nftIn, address tokenOut, uint256 nftInID, uint256 tokenOutAmount,
     uint256 expiryBlock, address to, bytes calldata data
   )
@@ -94,7 +95,7 @@ contract NftLimitSwapVerifier {
   /// @param expiryBlock The block when the swap expires [signed]
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
-  function NftToNft(
+  function nftToNft(
     uint256 bitmapIndex, uint256 bit, IERC721 nftIn, IERC721 nftOut, uint256 nftInID, uint256 nftOutID,
     uint256 expiryBlock, address to, bytes calldata data
   )
