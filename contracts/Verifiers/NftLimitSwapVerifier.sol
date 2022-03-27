@@ -13,11 +13,7 @@ import "../Libraries/NativeOrERC20.sol";
 contract NftLimitSwapVerifier {
   using NativeOrERC20 for address;
 
-  ICallExecutor internal immutable CALL_EXECUTOR;
-
-  constructor(ICallExecutor callExecutor) {
-    CALL_EXECUTOR = callExecutor;
-  }
+  ICallExecutor constant CALL_EXECUTOR = ICallExecutor(0xDE61dfE5fbF3F4Df70B16D0618f69B96A2754bf8);
 
   /// @dev Executes swap from fungible token (ERC20 or Native) to ERC721
   /// @notice This should be executed by metaDelegateCall() or metaDelegateCall_EIP1271() with the following signed and unsigned params

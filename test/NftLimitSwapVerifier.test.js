@@ -46,7 +46,6 @@ const NFT_LIMIT_SWAP_NFT_TO_NFT_PARAM_TYPES = [
 describe('NftLimitSwapVerifier', function() {
   beforeEach(async function () {
     const TestFulfillSwap = await ethers.getContractFactory('TestFulfillSwap')
-    const CallExecutor = await ethers.getContractFactory('CallExecutor')
     const NftLimitSwapVerifier = await ethers.getContractFactory('NftLimitSwapVerifier')
     const TestERC20 = await ethers.getContractFactory('TestERC20')
     const TestERC721 = await ethers.getContractFactory('TestERC721')
@@ -54,9 +53,8 @@ describe('NftLimitSwapVerifier', function() {
     const cryptoSkunks = await TestERC721.deploy('CryptoSkunks', 'SKUNKS')
     const bamfs = await TestERC721.deploy('bamfs', 'BAMFS')
     const { proxyAccount, proxyOwner } = await setupProxyAccount()
-    const callExecutor = await CallExecutor.deploy()
     this.testFulfillSwap = await TestFulfillSwap.deploy()
-    this.nftLimitSwapVerifier = await NftLimitSwapVerifier.deploy(callExecutor.address)
+    this.nftLimitSwapVerifier = await NftLimitSwapVerifier.deploy()
     this.proxyAccount = proxyAccount
     this.proxyOwner = proxyOwner
     

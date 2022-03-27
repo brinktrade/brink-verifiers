@@ -27,5 +27,8 @@ module.exports = {
         bytecodeHash: 'none'
       },
     },
-  }
+  },
+  mocha: {
+    file: './test/setupTeardown.js'
+  },
 }
