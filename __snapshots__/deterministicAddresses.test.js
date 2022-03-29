@@ -7,7 +7,7 @@ exports['LimitSwapVerifier.sol deterministic address check 1'] = `
 `
 
 exports['NftLimitSwapVerifier.sol deterministic address check 1'] = `
-0x5f9Fb58D8661f5db76d05691c0B9Fc80B2A85BF9
+0x5CA7c04210ea22fCbBbeA4A3f5329047C2D38Ab2
 `
 
 exports['CancelVerifier.sol deterministic address check 1'] = `

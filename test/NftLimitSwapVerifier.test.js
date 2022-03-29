@@ -245,7 +245,7 @@ describe('NftLimitSwapVerifier', function() {
     })
 
     it('when account has insufficient ETH balance', async function () {
-      await expect(this.metaDelegateCall(this.insufficientEthBalanceCall)).to.be.revertedWith('InsufficientEth')
+      await expect(this.metaDelegateCall(this.insufficientEthBalanceCall)).to.be.reverted
     })
 
     it('when swap is expired', async function () {

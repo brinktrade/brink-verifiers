@@ -39,7 +39,6 @@ contract NftLimitSwapVerifier {
     uint256 nftOutBalance = nftOut.balanceOf(address(this));
 
     if (tokenIn.isEth()) {
-      require(tokenInAmount <= address(this).balance, 'InsufficientEth');
       CALL_EXECUTOR.proxyCall{value: tokenInAmount}(to, data);
     } else {
       IERC20(tokenIn).transfer(to, tokenInAmount);
