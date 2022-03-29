@@ -5,8 +5,9 @@ const deploySaltedBytecode = require('@brinkninja/core/test/helpers/deploySalted
 const {
   CALL_EXECUTOR,
   LIMIT_SWAP_VERIFIER,
+  NFT_LIMIT_SWAP_VERIFIER,
   CANCEL_VERIFIER,
-  TRANSFER_VERIFIER
+  TRANSFER_VERIFIER,
 } = require('../constants')
 
 
@@ -25,6 +26,15 @@ describe('LimitSwapVerifier.sol', function () {
     const address = await deploySaltedBytecode(LimitSwapVerifier.bytecode, ['address'], [CALL_EXECUTOR])
     snapshot(address)
     expect(address, 'Deployed account address and LIMIT_SWAP_VERIFIER constant are different').to.equal(LIMIT_SWAP_VERIFIER)
+  })
+})
+
+describe('NftLimitSwapVerifier.sol', function () {
+  it('deterministic address check', async function () {
+    const NftLimitSwapVerifier = await ethers.getContractFactory('NftLimitSwapVerifier')
+    const address = await deploySaltedBytecode(NftLimitSwapVerifier.bytecode, [], [])
+    snapshot(address)
+    expect(address, 'Deployed account address and NFT_LIMIT_SWAP_VERIFIER constant are different').to.equal(NFT_LIMIT_SWAP_VERIFIER)
   })
 })
 
