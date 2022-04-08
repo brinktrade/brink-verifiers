@@ -13,7 +13,6 @@ const NFT_LIMIT_SWAP_TOKEN_TO_NFT_PARAM_TYPES = [
   { name: 'tokenIn', type: 'address' },
   { name: 'nftOut', type: 'address' },
   { name: 'tokenInAmount', type: 'uint256' },
-  { name: 'nftOutAmount', type: 'uint256' },
   { name: 'expiryBlock', type: 'uint256' },
   { name: 'to', type: 'address' },
   { name: 'data', type: 'bytes' },
@@ -37,7 +36,6 @@ const NFT_LIMIT_SWAP_NFT_TO_NFT_PARAM_TYPES = [
   { name: 'nftIn', type: 'address' },
   { name: 'nftOut', type: 'address' },
   { name: 'nftInID', type: 'uint256' },
-  { name: 'nftOutAmount', type: 'uint256' },
   { name: 'expiryBlock', type: 'uint256' },
   { name: 'to', type: 'address' },
   { name: 'data', type: 'bytes' },
@@ -101,21 +99,19 @@ describe('NftLimitSwapVerifier', function() {
         value: this.tokenASwapAmount
       })
 
-      const numSignedParams = 7
+      const numSignedParams = 6
       const swapParams = [
         BN(0), BN(2),
         this.tokenA.address,
         this.cryptoSkunks.address,
-        this.tokenASwapAmount.toString(),
-        1
+        this.tokenASwapAmount.toString()
       ]
 
       const ethInSwapParams = [
         BN(0), BN(2),
         ZERO_ADDRESS,
         this.cryptoSkunks.address,
-        this.tokenASwapAmount.toString(),
-        1
+        this.tokenASwapAmount.toString()
       ]
 
       this.successCall = proxyAccount => splitCallData(encodeFunctionCall(
@@ -167,7 +163,6 @@ describe('NftLimitSwapVerifier', function() {
           this.tokenA.address,
           this.cryptoSkunks.address,
           this.tokenASwapAmount.mul(2).toString(),
-          1,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
@@ -186,7 +181,6 @@ describe('NftLimitSwapVerifier', function() {
           ZERO_ADDRESS,
           this.cryptoSkunks.address,
           this.tokenASwapAmount.mul(2).toString(),
-          1,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
@@ -445,13 +439,12 @@ describe('NftLimitSwapVerifier', function() {
       await this.cryptoSkunks.mint((await randomAddress()).address, this.cryptoSkunkID + 1)
       await this.bamfs.mint(this.testFulfillSwap.address, this.bamfID)
 
-      const numSignedParams = 7
+      const numSignedParams = 6
       const swapParams = [
         BN(0), BN(2),
         this.cryptoSkunks.address,
         this.bamfs.address,
-        this.cryptoSkunkID,
-        1
+        this.cryptoSkunkID
       ]
 
       this.successCall = proxyAccount => splitCallData(encodeFunctionCall(
@@ -488,7 +481,6 @@ describe('NftLimitSwapVerifier', function() {
           this.cryptoSkunks.address,
           this.bamfs.address,
           this.cryptoSkunkID + 1,
-          1,
           this.expiryBlock.toString(),
           this.testFulfillSwap.address,
           encodeFunctionCall(
