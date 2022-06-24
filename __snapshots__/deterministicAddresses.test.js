@@ -17,3 +17,7 @@ exports['CancelVerifier.sol deterministic address check 1'] = `
 exports['TransferVerifier.sol deterministic address check 1'] = `
 0x6df5AE08Ec7aE5CC2E9e3b0850A61AD7C73bC9A9
 `
+
+exports['NftTransferVerifier.sol deterministic address check 1'] = `
+0x946CBd55EA50619C599d69Ab230Dff8707987D00
+`
