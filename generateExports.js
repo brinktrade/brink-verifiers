@@ -5,7 +5,8 @@ const contracts = [
   ['./artifacts/contracts/External/CallExecutor.sol/CallExecutor.json', constants.CALL_EXECUTOR],
   ['./artifacts/contracts/Verifiers/CancelVerifier.sol/CancelVerifier.json', constants.CANCEL_VERIFIER],
   ['./artifacts/contracts/Verifiers/LimitSwapVerifier.sol/LimitSwapVerifier.json', constants.LIMIT_SWAP_VERIFIER],
-  ['./artifacts/contracts/Verifiers/TransferVerifier.sol/TransferVerifier.json', constants.TRANSFER_VERIFIER]
+  ['./artifacts/contracts/Verifiers/TransferVerifier.sol/TransferVerifier.json', constants.TRANSFER_VERIFIER],
+  ['./artifacts/contracts/Verifiers/NftTransferVerifier.sol/NftTransferVerifier.json', constants.NFT_TRANSFER_VERIFIER]
 ]
 
 function generateInterface () {
