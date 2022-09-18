@@ -26,8 +26,8 @@ contract NftApprovalSwapVerifier {
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToNft(
-    uint256 bitmapIndex, uint256 bit, address tokenIn, IERC721 nftOut, uint256 tokenInAmount, uint256 expiryBlock, address to,
-    bytes calldata data
+    uint256 bitmapIndex, uint256 bit, address tokenIn, IERC721 nftOut, uint256 tokenInAmount, uint256 expiryBlock, address recipient,
+    address to, bytes calldata data
   )
     external
   {
@@ -39,7 +39,7 @@ contract NftApprovalSwapVerifier {
 
     uint256 nftOutBalance = nftOut.balanceOf(owner);
 
-    IERC20(tokenIn).transferFrom(owner, to, tokenInAmount);
+    IERC20(tokenIn).transferFrom(owner, recipient, tokenInAmount);
     CALL_EXECUTOR.proxyCall(to, data);
 
     uint256 nftOutAmountReceived = nftOut.balanceOf(owner) - nftOutBalance;
@@ -59,7 +59,7 @@ contract NftApprovalSwapVerifier {
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function nftToToken(
     uint256 bitmapIndex, uint256 bit, IERC721 nftIn, address tokenOut, uint256 nftInID, uint256 tokenOutAmount, uint256 expiryBlock,
-    address to, bytes calldata data
+    address recipient, address to, bytes calldata data
   )
     external
   {
@@ -71,7 +71,7 @@ contract NftApprovalSwapVerifier {
 
     uint256 tokenOutBalance = tokenOut.balanceOf(owner);
 
-    nftIn.transferFrom(owner, to, nftInID);
+    nftIn.transferFrom(owner, recipient, nftInID);
     CALL_EXECUTOR.proxyCall(to, data);
 
     uint256 tokenOutAmountReceived = tokenOut.balanceOf(owner) - tokenOutBalance;

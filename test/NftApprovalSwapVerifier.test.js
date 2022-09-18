@@ -4,7 +4,7 @@ const { setupProxyAccount } = require('@brinkninja/core/test/helpers')
 const brinkUtils = require('@brinkninja/utils')
 const { BN, encodeFunctionCall, splitCallData } = brinkUtils
 const { BN18, ZERO_ADDRESS } = brinkUtils.constants
-const { execMetaTx } = brinkUtils.testHelpers(ethers)
+const { execMetaTx, randomAddress } = brinkUtils.testHelpers(ethers)
 const snapshotGas = require('./helpers/snapshotGas')
 
 const NFT_APPROVAL_SWAP_TOKEN_TO_NFT_PARAM_TYPES = [
@@ -14,6 +14,7 @@ const NFT_APPROVAL_SWAP_TOKEN_TO_NFT_PARAM_TYPES = [
   { name: 'nftOut', type: 'address' },
   { name: 'tokenInAmount', type: 'uint256' },
   { name: 'expiryBlock', type: 'uint256' },
+  { name: 'recipient', type: 'address' },
   { name: 'to', type: 'address' },
   { name: 'data', type: 'bytes' },
 ]
@@ -26,6 +27,7 @@ const NFT_APPROVAL_SWAP_NFT_TO_TOKEN_PARAM_TYPES = [
   { name: 'nftInID', type: 'uint256' },
   { name: 'tokenOutAmount', type: 'uint256' },
   { name: 'expiryBlock', type: 'uint256' },
+  { name: 'recipient', type: 'address' },
   { name: 'to', type: 'address' },
   { name: 'data', type: 'bytes' },
 ]
@@ -44,6 +46,7 @@ describe('NftApprovalSwapVerifier', function() {
     this.nftApprovalSwapVerifier = await NftApprovalSwapVerifier.deploy()
     this.proxyAccount = proxyAccount
     this.proxyOwner = proxyOwner
+    this.recipient = await randomAddress()
     
     const [ defaultAccount, , proxyOwner_1, proxyOwner_2, proxyOwner_3, proxyOwner_4, proxyOwner_5, proxyOwner_6 ] = await ethers.getSigners()
     this.defaultAccount = defaultAccount
@@ -94,17 +97,18 @@ describe('NftApprovalSwapVerifier', function() {
         this.tokenASwapAmount.toString()
       ]
 
-      this.successCall = recipient => splitCallData(encodeFunctionCall(
+      this.successCall = nftRecipient => splitCallData(encodeFunctionCall(
         'tokenToNft',
         NFT_APPROVAL_SWAP_TOKEN_TO_NFT_PARAM_TYPES.map(t => t.type),
         [
           ...swapParams,
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillNftOutSwap',
             ['address', 'uint', 'address'],
-            [ this.cryptoSkunks.address, this.cryptoSkunkID, recipient.address ]
+            [ this.cryptoSkunks.address, this.cryptoSkunkID, nftRecipient.address ]
           )
         ]
       ), numSignedParams)
@@ -115,6 +119,7 @@ describe('NftApprovalSwapVerifier', function() {
         [
           ...swapParams,
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall('fulfillNothing', [], [])
         ]
@@ -129,6 +134,7 @@ describe('NftApprovalSwapVerifier', function() {
           this.cryptoSkunks.address,
           this.tokenASwapAmount.mul(2).toString(),
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillNftOutSwap',
@@ -147,6 +153,7 @@ describe('NftApprovalSwapVerifier', function() {
           this.cryptoSkunks.address,
           this.tokenASwapAmount.mul(2).toString(),
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillNftOutSwap',
@@ -162,6 +169,7 @@ describe('NftApprovalSwapVerifier', function() {
         [
           ...swapParams,
           this.expiredBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillNftOutSwap',
@@ -179,7 +187,7 @@ describe('NftApprovalSwapVerifier', function() {
       expect(await this.tokenA.balanceOf(this.proxyOwner.address)).to.equal(BN(0))
       expect(await this.cryptoSkunks.balanceOf(this.proxyOwner.address)).to.equal(1)
       expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.proxyOwner.address)
-      expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(this.tokenASwapAmount)
+      expect(await this.tokenA.balanceOf(this.recipient.address)).to.equal(this.tokenASwapAmount)
       expect(await this.cryptoSkunks.balanceOf(this.testFulfillSwap.address)).to.equal(BN(0))
     })
 
@@ -250,32 +258,34 @@ describe('NftApprovalSwapVerifier', function() {
         this.tokenASwapAmount.toString()
       ]
 
-      this.successCall = recipient => splitCallData(encodeFunctionCall(
+      this.successCall = tokenRecipient => splitCallData(encodeFunctionCall(
         'nftToToken',
         NFT_APPROVAL_SWAP_NFT_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
           ...swapParams,
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
             ['address', 'uint', 'address'],
-            [ this.tokenA.address, this.tokenASwapAmount.toString(), recipient.address ]
+            [ this.tokenA.address, this.tokenASwapAmount.toString(), tokenRecipient.address ]
           )
         ]
       ), numSignedParams)
 
-      this.ethOutSuccessCall = recipient => splitCallData(encodeFunctionCall(
+      this.ethOutSuccessCall = tokenRecipient => splitCallData(encodeFunctionCall(
         'nftToToken',
         NFT_APPROVAL_SWAP_NFT_TO_TOKEN_PARAM_TYPES.map(t => t.type),
         [
           ...ethOutSwapParams,
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillEthOutSwap',
             ['uint', 'address'],
-            [ this.tokenASwapAmount.toString(), recipient.address ]
+            [ this.tokenASwapAmount.toString(), tokenRecipient.address ]
           )
         ]
       ), numSignedParams)
@@ -286,6 +296,7 @@ describe('NftApprovalSwapVerifier', function() {
         [
           ...swapParams,
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall('fulfillNothing', [], [])
         ]
@@ -297,6 +308,7 @@ describe('NftApprovalSwapVerifier', function() {
         [
           ...ethOutSwapParams,
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall('fulfillNothing', [], [])
         ]
@@ -312,6 +324,7 @@ describe('NftApprovalSwapVerifier', function() {
           this.cryptoSkunkID,
           this.tokenASwapAmount.toString(),
           this.expiryBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
@@ -327,6 +340,7 @@ describe('NftApprovalSwapVerifier', function() {
         [
           ...swapParams,
           this.expiredBlock.toString(),
+          this.recipient.address,
           this.testFulfillSwap.address,
           encodeFunctionCall(
             'fulfillTokenOutSwap',
@@ -343,9 +357,9 @@ describe('NftApprovalSwapVerifier', function() {
       await this.metaDelegateCall(this.successCall(this.proxyOwner))
       expect(await this.tokenA.balanceOf(this.proxyOwner.address)).to.equal(this.tokenASwapAmount)
       expect(await this.cryptoSkunks.balanceOf(this.proxyOwner.address)).to.equal(0)
-      expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.testFulfillSwap.address)
+      expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.recipient.address)
       expect(await this.tokenA.balanceOf(this.testFulfillSwap.address)).to.equal(0)
-      expect(await this.cryptoSkunks.balanceOf(this.testFulfillSwap.address)).to.equal(BN(1))
+      expect(await this.cryptoSkunks.balanceOf(this.recipient.address)).to.equal(BN(1))
     })
 
     it('when output token is ETH and call is valid, should execute the swap', async function () {
@@ -356,9 +370,9 @@ describe('NftApprovalSwapVerifier', function() {
       const finalEthBalance = await ethers.provider.getBalance(this.proxyOwner.address)
       expect(finalEthBalance.sub(initialEthBalance)).to.equal(this.tokenASwapAmount)
       expect(await this.cryptoSkunks.balanceOf(this.proxyOwner.address)).to.equal(0)
-      expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.testFulfillSwap.address)
+      expect(await this.cryptoSkunks.ownerOf(this.cryptoSkunkID)).to.equal(this.recipient.address)
       expect(await ethers.provider.getBalance(this.testFulfillSwap.address)).to.equal(0)
-      expect(await this.cryptoSkunks.balanceOf(this.testFulfillSwap.address)).to.equal(BN(1))
+      expect(await this.cryptoSkunks.balanceOf(this.recipient.address)).to.equal(BN(1))
     })
 
     it('when required token is not received by the account', async function () {

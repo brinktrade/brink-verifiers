@@ -1,3 +1,3 @@
-exports['NftApprovalSwapVerifier tokenToNft() gas cost 1'] = 140634
+exports['NftApprovalSwapVerifier tokenToNft() gas cost 1'] = 141071
 
-exports['NftApprovalSwapVerifier nftToToken() gas cost 1'] = 136750
+exports['NftApprovalSwapVerifier nftToToken() gas cost 1'] = 137123
