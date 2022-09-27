@@ -9,6 +9,7 @@ const {
   CANCEL_VERIFIER,
   TRANSFER_VERIFIER,
   NFT_TRANSFER_VERIFIER,
+  NFT_APPROVAL_SWAP_VERIFIER
 } = require('../constants')
 
 describe('CallExecutor.sol', function () {
@@ -62,5 +63,14 @@ describe('NftTransferVerifier.sol', function () {
     const address = await deploySaltedBytecode(NftTransferVerifier.bytecode, [], [])
     snapshot(address)
     expect(address, 'Deployed account address and NFT_TRANSFER_VERIFIER constant are different').to.equal(NFT_TRANSFER_VERIFIER)
+  })
+})
+
+describe('NftApprovalSwapVerifier.sol', function () {
+  it('deterministic address check', async function () {
+    const NftApprovalSwapVerifier = await ethers.getContractFactory('NftApprovalSwapVerifier')
+    const address = await deploySaltedBytecode(NftApprovalSwapVerifier.bytecode, [], [])
+    snapshot(address)
+    expect(address, 'Deployed account address and NFT_APPROVAL_SWAP_VERIFIER constant are different').to.equal(NFT_APPROVAL_SWAP_VERIFIER)
   })
 })
