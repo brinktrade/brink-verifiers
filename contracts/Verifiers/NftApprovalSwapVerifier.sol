@@ -23,6 +23,7 @@ contract NftApprovalSwapVerifier {
   /// @param nftOut The ERC721 output token required to be received from the swap [signed]
   /// @param tokenInAmount Amount of tokenIn provided [signed]
   /// @param expiryBlock The block when the swap expires [signed]
+  /// @param recipient Address of the recipient of the token input [unsigned]
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function tokenToNft(
@@ -55,6 +56,7 @@ contract NftApprovalSwapVerifier {
   /// @param nftInID The ID of the nftIn token provided [signed]
   /// @param tokenOutAmount Amount of tokenOut required to be received [signed]
   /// @param expiryBlock The block when the swap expires [signed]
+  /// @param recipient Address of the recipient of the nft input [unsigned]
   /// @param to Address of the contract that will fulfill the swap [unsigned]
   /// @param data Data to execute on the `to` contract to fulfill the swap [unsigned]
   function nftToToken(
