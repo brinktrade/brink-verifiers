@@ -1,1 +1,1 @@
-exports['NftTransferVerifier nftTransfer() gas cost 1'] = 81031
+exports['NftTransferVerifier nftTransfer() gas cost 1'] = 81014
