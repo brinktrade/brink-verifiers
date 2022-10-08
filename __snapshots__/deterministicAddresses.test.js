@@ -25,3 +25,7 @@ exports['NftTransferVerifier.sol deterministic address check 1'] = `
 exports['NftApprovalSwapVerifier.sol deterministic address check 1'] = `
 0x47b16A209c757FA4A34BbfBbE48204906C4FDE5d
 `
+
+exports['LimitApprovalSwapVerifier.sol deterministic address check 1'] = `
+0x89d2D7803f8DC44eD24dCCeBE4222E35B0756a33
+`
